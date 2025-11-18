@@ -1,0 +1,95 @@
+[gd_scene load_steps=19 format=3 uid="uid://bujeumngbk1ab"]
+
+[ext_resource type="PackedScene" uid="uid://p4y3tg8cs737" path="res://playground/Playground.gltf" id="1_duj6w"]
+[ext_resource type="PackedScene" uid="uid://bh8sspxhoiuqi" path="res://character/animations/character.tscn" id="2_8vnjg"]
+[ext_resource type="Script" uid="uid://ltqg3aoiwgnm" path="res://playground/character_body_3d.gd" id="2_s8dwm"]
+[ext_resource type="Animation" uid="uid://crgb5bc6j2ocn" path="res://character/animations/Death.res" id="3_0ttet"]
+[ext_resource type="Animation" uid="uid://ccy7cypjo7ol1" path="res://character/animations/Get_Hit_A.res" id="4_s8dwm"]
+[ext_resource type="Animation" uid="uid://bw8cxlgef0vk5" path="res://character/animations/Get_Hit_B.res" id="5_7k1vm"]
+[ext_resource type="Animation" uid="uid://pj0qmhfhpbtp" path="res://character/animations/Idle.res" id="6_w627l"]
+[ext_resource type="Animation" uid="uid://547yfk4ykidh" path="res://character/animations/Jump_End.res" id="7_epjcp"]
+[ext_resource type="Animation" uid="uid://co6ow7mkl3qe3" path="res://character/animations/Jump_Loop.res" id="8_vwmbj"]
+[ext_resource type="Animation" uid="uid://cmvim1a3d0tdx" path="res://character/animations/Jump_Start.res" id="9_v0ax3"]
+[ext_resource type="Animation" uid="uid://co44xtvu30kvc" path="res://character/animations/Run.res" id="10_jq65x"]
+[ext_resource type="Animation" uid="uid://ci14mi4c7tskr" path="res://character/animations/Walk.res" id="11_soaeu"]
+[ext_resource type="PackedScene" uid="uid://dfx8h05vrgetk" path="res://playground/boxes.gltf" id="13_7k1vm"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8vnjg"]
+sky_horizon_color = Color(0.64233613, 0.6616652, 0.72339386, 1)
+ground_bottom_color = Color(0.1474295, 0.15574586, 0.30666032, 1)
+ground_horizon_color = Color(0.64233613, 0.6616652, 0.72339386, 1)
+energy_multiplier = 8.0
+
+[sub_resource type="Sky" id="Sky_tuib3"]
+sky_material = SubResource("ProceduralSkyMaterial_8vnjg")
+
+[sub_resource type="Environment" id="Environment_gwu22"]
+background_mode = 2
+sky = SubResource("Sky_tuib3")
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_uu1lh"]
+_data = {
+&"Death": ExtResource("3_0ttet"),
+&"Get_Hit_A": ExtResource("4_s8dwm"),
+&"Get_Hit_B": ExtResource("5_7k1vm"),
+&"Idle": ExtResource("6_w627l"),
+&"Jump_End": ExtResource("7_epjcp"),
+&"Jump_Loop": ExtResource("8_vwmbj"),
+&"Jump_Start": ExtResource("9_v0ax3"),
+&"Run": ExtResource("10_jq65x"),
+&"Walk": ExtResource("11_soaeu")
+}
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
+radius = 0.38476563
+height = 2.8059082
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_gwu22")
+
+[node name="default2" parent="." instance=ExtResource("13_7k1vm")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.5, 0, 0)
+
+[node name="Level" parent="." instance=ExtResource("1_duj6w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, -2)
+
+[node name="Player" type="CharacterBody3D" parent="."]
+collision_layer = 2
+axis_lock_angular_x = true
+axis_lock_angular_y = true
+axis_lock_angular_z = true
+script = ExtResource("2_s8dwm")
+
+[node name="Character_Skin" parent="Player" instance=ExtResource("2_8vnjg")]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
+
+[node name="Animations" type="AnimationPlayer" parent="Player/Character_Skin"]
+libraries = {
+&"Player": SubResource("AnimationLibrary_uu1lh")
+}
+
+[node name="wall_check" type="RayCast3D" parent="Player/Character_Skin"]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 1.2, 0.4)
+target_position = Vector3(0, 0, -1)
+
+[node name="ledge_check" type="RayCast3D" parent="Player/Character_Skin"]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 1.9, 0.4)
+target_position = Vector3(0, 0, -1)
+
+[node name="ledge_down" type="RayCast3D" parent="Player/Character_Skin"]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 2.1, 0.6)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3991017, 0)
+shape = SubResource("CapsuleShape3D_tuib3")
+
+[node name="CameraPivot" type="Node3D" parent="Player"]
+unique_name_in_owner = true
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.5138e-08, 2.692021, 1.4901838)
+
+[node name="Camera3D" type="Camera3D" parent="Player/CameraPivot"]
+unique_name_in_owner = true
+transform = Transform3D(-4.3711385e-08, 0.70710677, -0.7071067, 0, 0.70710677, 0.7071067, 0.99999994, 3.090862e-08, -3.0908616e-08, -9.1211195, 9.050598, -3.9869684e-07)
+fov = 40.0

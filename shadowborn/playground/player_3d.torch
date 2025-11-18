@@ -1,0 +1,86 @@
+[orchestration type="OScript" load_steps=7 format=3 uid="uid://dquar1pfp3ptt"]
+
+[obj type="OScriptGraph" id="OScriptGraph_y6q8f"]
+graph_name = &"EventGraph"
+offset = Vector2(5, 0)
+flags = 8
+nodes = Array[int]([0, 1, 2, 3, 4])
+
+[obj type="OScriptNodeInputAction" id="OScriptNodeInputAction_y6q8f"]
+action = "ui_up"
+id = 0
+position = Vector2(260, 120)
+pin_data = Array[Dictionary]([{
+"pin_name": &"state",
+"type": 1,
+"dir": 1,
+"flags": 2,
+"label": "Pressed"
+}])
+
+[obj type="OScriptNodeInputAction" id="OScriptNodeInputAction_k6s1l"]
+action = "ui_down"
+id = 1
+position = Vector2(260, 200)
+pin_data = Array[Dictionary]([{
+"pin_name": &"state",
+"type": 1,
+"dir": 1,
+"flags": 2,
+"label": "Pressed"
+}])
+
+[obj type="OScriptNodeInputAction" id="OScriptNodeInputAction_jdild"]
+action = "ui_left"
+id = 2
+position = Vector2(260, 280)
+pin_data = Array[Dictionary]([{
+"pin_name": &"state",
+"type": 1,
+"dir": 1,
+"flags": 2,
+"label": "Pressed"
+}])
+
+[obj type="OScriptNodeInputAction" id="OScriptNodeInputAction_kraf0"]
+action = "ui_right"
+id = 3
+position = Vector2(260, 360)
+pin_data = Array[Dictionary]([{
+"pin_name": &"state",
+"type": 1,
+"dir": 1,
+"flags": 2,
+"label": "Pressed"
+}])
+
+[obj type="OScriptNodeOperator" id="OScriptNodeOperator_g4vwa"]
+op = 7
+code = &"-"
+name = &"Subtract"
+left_type = 3
+left_type_name = &"float"
+right_type = 3
+right_type_name = &"float"
+return_type = 3
+id = 4
+position = Vector2(740, 60)
+pin_data = Array[Dictionary]([{
+"pin_name": &"a",
+"type": 3,
+"flags": 2
+}, {
+"pin_name": &"b",
+"type": 3,
+"flags": 2
+}, {
+"pin_name": &"result",
+"type": 3,
+"dir": 1,
+"flags": 2
+}])
+
+[resource]
+base_type = &"CharacterBody3D"
+nodes = Array[OScriptNode]([SubResource("OScriptNodeInputAction_y6q8f"), SubResource("OScriptNodeInputAction_k6s1l"), SubResource("OScriptNodeInputAction_jdild"), SubResource("OScriptNodeInputAction_kraf0"), SubResource("OScriptNodeOperator_g4vwa")])
+graphs = Array[OScriptGraph]([SubResource("OScriptGraph_y6q8f")])
