@@ -41,8 +41,8 @@ _data = {
 }
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
-radius = 0.38476563
-height = 2.8059082
+radius = 0.5629883
+height = 2.786255
 
 [node name="Node3D" type="Node3D"]
 
@@ -82,8 +82,9 @@ target_position = Vector3(0, 0, -1)
 transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 2.1, 0.6)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3991017, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3892751, 0)
 shape = SubResource("CapsuleShape3D_tuib3")
+debug_color = Color(0, 0.6, 0.69803923, 1)
 
 [node name="CameraPivot" type="Node3D" parent="Player"]
 unique_name_in_owner = true
@@ -91,5 +92,5 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.51
 
 [node name="Camera3D" type="Camera3D" parent="Player/CameraPivot"]
 unique_name_in_owner = true
-transform = Transform3D(-4.3711385e-08, 0.70710677, -0.7071067, 0, 0.70710677, 0.7071067, 0.99999994, 3.090862e-08, -3.0908616e-08, -9.1211195, 9.050598, -3.9869684e-07)
+transform = Transform3D(0.99999994, 0, 0, 0, 0.7071067, 0.7071067, 0, -0.7071067, 0.7071067, 1.703689, 11.318947, 11.025788)
 fov = 40.0
