@@ -2,25 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwbvvi57o5kru"
-path="res://.godot/imported/tex_character.png-bf94105e1e43c94eaf1e643e8af2a521.ctex"
+uid="uid://cvmcpw84sx7q3"
+path.s3tc="res://.godot/imported/tex_character.png-cbdfa93757b5b12dff64c3f60711e79c.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
-source_file="res://character/animations/tex_character.png"
-dest_files=["res://.godot/imported/tex_character.png-bf94105e1e43c94eaf1e643e8af2a521.ctex"]
+source_file="res://character/tex_character.png"
+dest_files=["res://.godot/imported/tex_character.png-cbdfa93757b5b12dff64c3f60711e79c.s3tc.ctex"]
 
 [params]
 
-compress/mode=3
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
-compress/hdr_compression=0
+compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=true

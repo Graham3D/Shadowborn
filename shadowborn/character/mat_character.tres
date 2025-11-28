@@ -1,6 +1,6 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://bf132ndmh6hk6"]
 
-[ext_resource type="Texture2D" uid="uid://dwbvvi57o5kru" path="res://character/animations/tex_character.png" id="1_acrmh"]
+[ext_resource type="Texture2D" uid="uid://cvmcpw84sx7q3" path="res://character/tex_character.png" id="1_acrmh"]
 
 [resource]
 shading_mode = 0

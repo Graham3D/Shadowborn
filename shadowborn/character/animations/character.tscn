@@ -1,9 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://bh8sspxhoiuqi"]
-
-[ext_resource type="PackedScene" uid="uid://8yjfpt7x6c7d" path="res://character/animations/Character.gltf" id="1_7ja3q"]
-[ext_resource type="Material" uid="uid://bf132ndmh6hk6" path="res://character/animations/mat_character.tres" id="2_fqpcc"]
-
-[node name="Character" instance=ExtResource("1_7ja3q")]
-
-[node name="character" parent="Skeleton3D" index="0"]
-material_override = ExtResource("2_fqpcc")

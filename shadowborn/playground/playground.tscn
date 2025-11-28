@@ -1,17 +1,8 @@
-[gd_scene load_steps=19 format=3 uid="uid://bujeumngbk1ab"]
+[gd_scene load_steps=9 format=3 uid="uid://bujeumngbk1ab"]
 
 [ext_resource type="PackedScene" uid="uid://p4y3tg8cs737" path="res://playground/Playground.gltf" id="1_duj6w"]
-[ext_resource type="PackedScene" uid="uid://bh8sspxhoiuqi" path="res://character/animations/character.tscn" id="2_8vnjg"]
 [ext_resource type="Script" uid="uid://ltqg3aoiwgnm" path="res://playground/character_body_3d.gd" id="2_s8dwm"]
-[ext_resource type="Animation" uid="uid://crgb5bc6j2ocn" path="res://character/animations/Death.res" id="3_0ttet"]
-[ext_resource type="Animation" uid="uid://ccy7cypjo7ol1" path="res://character/animations/Get_Hit_A.res" id="4_s8dwm"]
-[ext_resource type="Animation" uid="uid://bw8cxlgef0vk5" path="res://character/animations/Get_Hit_B.res" id="5_7k1vm"]
-[ext_resource type="Animation" uid="uid://pj0qmhfhpbtp" path="res://character/animations/Idle.res" id="6_w627l"]
-[ext_resource type="Animation" uid="uid://547yfk4ykidh" path="res://character/animations/Jump_End.res" id="7_epjcp"]
-[ext_resource type="Animation" uid="uid://co6ow7mkl3qe3" path="res://character/animations/Jump_Loop.res" id="8_vwmbj"]
-[ext_resource type="Animation" uid="uid://cmvim1a3d0tdx" path="res://character/animations/Jump_Start.res" id="9_v0ax3"]
-[ext_resource type="Animation" uid="uid://co44xtvu30kvc" path="res://character/animations/Run.res" id="10_jq65x"]
-[ext_resource type="Animation" uid="uid://ci14mi4c7tskr" path="res://character/animations/Walk.res" id="11_soaeu"]
+[ext_resource type="PackedScene" uid="uid://b78v6gjyrpm3w" path="res://character/Character.fbx" id="4_gwu22"]
 [ext_resource type="PackedScene" uid="uid://dfx8h05vrgetk" path="res://playground/boxes.gltf" id="13_7k1vm"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8vnjg"]
@@ -26,19 +17,6 @@ sky_material = SubResource("ProceduralSkyMaterial_8vnjg")
 [sub_resource type="Environment" id="Environment_gwu22"]
 background_mode = 2
 sky = SubResource("Sky_tuib3")
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_uu1lh"]
-_data = {
-&"Death": ExtResource("3_0ttet"),
-&"Get_Hit_A": ExtResource("4_s8dwm"),
-&"Get_Hit_B": ExtResource("5_7k1vm"),
-&"Idle": ExtResource("6_w627l"),
-&"Jump_End": ExtResource("7_epjcp"),
-&"Jump_Loop": ExtResource("8_vwmbj"),
-&"Jump_Start": ExtResource("9_v0ax3"),
-&"Run": ExtResource("10_jq65x"),
-&"Walk": ExtResource("11_soaeu")
-}
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
 radius = 0.5629883
@@ -62,24 +40,18 @@ axis_lock_angular_y = true
 axis_lock_angular_z = true
 script = ExtResource("2_s8dwm")
 
-[node name="Character_Skin" parent="Player" instance=ExtResource("2_8vnjg")]
-transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 0, 0)
+[node name="Character" parent="Player" instance=ExtResource("4_gwu22")]
 
-[node name="Animations" type="AnimationPlayer" parent="Player/Character_Skin"]
-libraries = {
-&"Player": SubResource("AnimationLibrary_uu1lh")
-}
-
-[node name="wall_check" type="RayCast3D" parent="Player/Character_Skin"]
-transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 1.2, 0.4)
+[node name="wall_check" type="RayCast3D" parent="Player/Character"]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.2, 0.39999998)
 target_position = Vector3(0, 0, -1)
 
-[node name="ledge_check" type="RayCast3D" parent="Player/Character_Skin"]
-transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 1.9, 0.4)
+[node name="ledge_check" type="RayCast3D" parent="Player/Character"]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.9, 0.39999998)
 target_position = Vector3(0, 0, -1)
 
-[node name="ledge_down" type="RayCast3D" parent="Player/Character_Skin"]
-transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 0, 2.1, 0.6)
+[node name="ledge_down" type="RayCast3D" parent="Player/Character"]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 2.1, 0.59999996)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3892751, 0)
