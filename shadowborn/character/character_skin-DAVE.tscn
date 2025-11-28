@@ -1,0 +1,92 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2nfit0enavl2"]
+
+[ext_resource type="PackedScene" uid="uid://b78v6gjyrpm3w" path="res://character/Character.fbx" id="1_041w0"]
+
+[node name="CharacterSkin" instance=ExtResource("1_041w0")]
+
+[node name="Skeleton3D" parent="." index="0"]
+bones/0/position = Vector3(0, 0.653248, 0)
+bones/0/rotation = Quaternion(0.7071069, 0.704416, 0.06162844, 1.2131063e-07)
+bones/1/position = Vector3(0.076904446, 7.147589e-09, -2.2030653e-08)
+bones/1/rotation = Quaternion(0.21561858, 0.08640977, -0.011375764, 0.9725804)
+bones/1/scale = Vector3(1.0000004, 1.0000001, 1.0000001)
+bones/2/position = Vector3(0.17409566, -6.9953884e-08, 1.1203072e-07)
+bones/2/rotation = Quaternion(0.0065523325, 0.08209345, 0.029269097, 0.9961732)
+bones/2/scale = Vector3(0.9999999, 1.0000001, 0.99999964)
+bones/3/position = Vector3(0.23679972, -3.983615e-07, 6.25576e-08)
+bones/3/rotation = Quaternion(-0.18395975, -0.16134645, -0.0121853715, 0.9695245)
+bones/3/scale = Vector3(0.9999997, 1.0000004, 1.0000002)
+bones/4/position = Vector3(0.23679987, -4.3174038e-07, 3.8680707e-07)
+bones/4/rotation = Quaternion(0.07631139, -0.26016772, 0.83535343, 0.4781987)
+bones/4/scale = Vector3(0.99999976, 0.99999976, 1.0000004)
+bones/5/position = Vector3(0.17257364, 2.0145708e-07, -7.629419e-08)
+bones/5/rotation = Quaternion(0.5914657, 0.12338116, -0.1177327, 0.78808916)
+bones/5/scale = Vector3(0.9999998, 1, 1.0000001)
+bones/6/position = Vector3(0.19602709, -5.7104373e-08, -6.7808564e-08)
+bones/6/rotation = Quaternion(1.7843145e-07, 0.6656479, -1.7843145e-07, 0.746266)
+bones/6/scale = Vector3(1.0000001, 1, 1.0000004)
+bones/7/position = Vector3(0.16014346, -5.3230703e-08, 1.9959774e-07)
+bones/7/rotation = Quaternion(0.041336518, -0.0063589416, 0.012661456, 0.9990449)
+bones/7/scale = Vector3(0.9999997, 1, 0.9999997)
+bones/8/position = Vector3(0.23679979, -4.3174023e-07, 3.86807e-07)
+bones/8/rotation = Quaternion(-0.0017108768, -0.30865175, -0.83805573, 0.44988203)
+bones/8/scale = Vector3(1.0000002, 0.99999994, 1.0000004)
+bones/9/position = Vector3(0.17257339, 8.770181e-09, 7.6293595e-08)
+bones/9/rotation = Quaternion(-0.61247706, 0.15525764, 0.045606457, 0.77374876)
+bones/9/scale = Vector3(1.0000004, 1.0000005, 1.0000002)
+bones/10/position = Vector3(0.1960271, -1.8462334e-08, 9.236802e-08)
+bones/10/rotation = Quaternion(-5.22001e-07, 0.5990734, 5.355079e-07, 0.8006942)
+bones/10/scale = Vector3(1.0000001, 1.0000004, 1.0000002)
+bones/11/position = Vector3(0.16014344, 3.8296108e-08, 8.612578e-09)
+bones/11/rotation = Quaternion(0.03879904, -0.01539407, 0.013308241, 0.9990399)
+bones/11/scale = Vector3(0.9999997, 0.99999994, 0.99999946)
+bones/12/position = Vector3(3.3017655e-09, 0.09649999, -3.8146972e-08)
+bones/12/rotation = Quaternion(0.0057519414, 0.8154678, -0.002901319, 0.5787667)
+bones/12/scale = Vector3(1.0000002, 1, 1.0000007)
+bones/13/position = Vector3(0.19115537, -8.8293837e-07, 2.9181735e-06)
+bones/13/rotation = Quaternion(-0.00013728143, 0.7706504, 0.000113557086, 0.63725823)
+bones/13/scale = Vector3(0.9999998, 1, 0.9999999)
+bones/14/position = Vector3(0.27854735, -6.1539225e-08, 1.3360913e-07)
+bones/14/rotation = Quaternion(-0.03613487, -0.88724506, 0.01623663, 0.4595944)
+bones/15/position = Vector3(-3.3017409e-09, -0.09649993, 1.9073486e-08)
+bones/15/rotation = Quaternion(-0.033057325, 0.94825596, 0.060706966, 0.30989113)
+bones/15/scale = Vector3(1.0000001, 0.9999999, 1.0000004)
+bones/16/position = Vector3(0.19115539, -7.157514e-08, 9.538454e-07)
+bones/16/rotation = Quaternion(-1.71298e-05, 0.874247, 9.437458e-06, 0.48548144)
+bones/16/scale = Vector3(0.99999994, 0.9999999, 0.9999999)
+bones/17/position = Vector3(0.27854466, -2.7659417e-09, -1.8967588e-08)
+bones/17/rotation = Quaternion(0.03629926, -0.7646546, 0.03449502, 0.64249194)
+bones/17/scale = Vector3(1.0000005, 1.0000002, 1.0000001)
+
+[node name="right_foot_helper" parent="Skeleton3D" index="0"]
+transform = Transform3D(4.7683716e-07, 1.9923894, 0.17431189, 1.9923894, -0.015192747, 0.17364787, 0.1743112, 0.17364855, -1.9848077, 0, 0.653248, 0)
+bone_idx = 0
+
+[node name="right_foot_helper" parent="Skeleton3D/right_foot_helper" index="0"]
+transform = Transform3D(0.045047667, 0.0006510697, 0.4979661, 0.040078446, 0.49837276, -0.0042772307, -0.4963511, 0.040300783, 0.044848874, -0.46997344, 0.25000033, -1.217797e-07)
+
+[node name="left_foot_helper" parent="Skeleton3D" index="1"]
+transform = Transform3D(4.7683716e-07, 1.9923894, 0.17431189, 1.9923894, -0.015192747, 0.17364787, 0.1743112, 0.17364855, -1.9848077, 0, 0.653248, 0)
+bone_idx = 0
+
+[node name="left_foot_helper" parent="Skeleton3D/left_foot_helper" index="0"]
+transform = Transform3D(-0.4823245, -0.043398194, 0.12441688, -0.04259072, 0.49810785, 0.008635678, -0.1246956, -0.0022676112, -0.484196, -0.46997374, -0.24999979, 1.1477632e-07)
+
+[node name="head_helper" parent="Skeleton3D" index="2"]
+transform = Transform3D(4.7683716e-07, 1.9923894, 0.17431189, 1.9923894, -0.015192747, 0.17364787, 0.1743112, 0.17364855, -1.9848077, 0, 0.653248, 0)
+bone_idx = 0
+
+[node name="head_helper" parent="Skeleton3D/head_helper" index="0"]
+transform = Transform3D(0.49977097, -0.014781091, -0.0032388538, 0.014433247, 0.4977933, -0.044648647, 0.004544471, 0.044534698, 0.49799195, -0.32538104, 0.00248119, -0.028358743)
+
+[node name="IK Chain Right Arm" parent="." index="1"]
+transform = Transform3D(0.9961947, 0.08715574, 3.8096983e-09, 0, -4.371139e-08, 1, 0.08715574, -0.9961947, -4.3545054e-08, 0.5099961, 0.99771947, -0.12485534)
+
+[node name="IK Chain Left Arm" parent="." index="2"]
+transform = Transform3D(0.9961947, 0.08715574, 3.8096983e-09, 0, -4.371139e-08, 1, 0.08715574, -0.9961947, -4.3545054e-08, -0.46155185, 0.86529213, 0.34163392)
+
+[node name="IK Chain Right Leg" parent="." index="3"]
+transform = Transform3D(0.9961947, 0.08715574, 3.8096983e-09, 0, -4.371139e-08, 1, 0.08715574, -0.9961947, -4.3545054e-08, 0.19299755, 0.0013028998, 0.045397617)
+
+[node name="IK Chain Left Leg" parent="." index="4"]
+transform = Transform3D(0.9961947, 0.08715574, 3.8096983e-09, 0, -4.371139e-08, 1, 0.08715574, -0.9961947, -4.3545054e-08, -0.22982708, 0.30053374, -0.3768258)
