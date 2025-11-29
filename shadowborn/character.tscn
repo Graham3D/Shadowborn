@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6wmwasuylmg2"]
+
+[ext_resource type="PackedScene" uid="uid://b78v6gjyrpm3w" path="res://character/Character.fbx" id="1_glpr6"]
+
+[node name="Character" instance=ExtResource("1_glpr6")]
+
+[node name="Skeleton3D" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0, 0)
+bones/0/enabled = false
+
+[node name="right_foot_helper" parent="Skeleton3D" index="0"]
+transform = Transform3D(7.1525574e-07, 2, -7.096679e-07, 2, -9.536743e-07, 2.5579538e-13, -2.842171e-14, -7.096679e-07, -2, 0, 0.9399471, 0)
+bone_idx = 0
+
+[node name="left_foot_helper" parent="Skeleton3D" index="1"]
+transform = Transform3D(7.1525574e-07, 2, -7.096679e-07, 2, -9.536743e-07, 2.5579538e-13, -2.842171e-14, -7.096679e-07, -2, 0, 0.9399471, 0)
+bone_idx = 0
+
+[node name="head_helper" parent="Skeleton3D" index="2"]
+transform = Transform3D(7.1525574e-07, 2, -7.096679e-07, 2, -9.536743e-07, 2.5579538e-13, -2.842171e-14, -7.096679e-07, -2, 0, 0.9399471, 0)
+bone_idx = 0

@@ -16,11 +16,11 @@ dest_files=["res://.godot/imported/Character.fbx-2452b971610a9a16ca9b1220de8a576
 nodes/root_type=""
 nodes/root_name=""
 nodes/root_script=null
-nodes/apply_root_scale=true
+nodes/apply_root_scale=false
 nodes/root_scale=1.0
 nodes/import_as_skeleton_bones=false
-nodes/use_name_suffixes=true
-nodes/use_node_type_suffixes=true
+nodes/use_name_suffixes=false
+nodes/use_node_type_suffixes=false
 meshes/ensure_tangents=true
 meshes/generate_lods=true
 meshes/create_shadow_meshes=true
@@ -41,7 +41,7 @@ _subresources={
 "animations": {
 "Fall": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://character/Animations/fall.res",
+"save_to_file/fallback_path": "res://character/Animations/Fall.res",
 "save_to_file/keep_custom_tracks": true,
 "save_to_file/path": "uid://cgfeb174v8e4m",
 "settings/loop_mode": 1,
@@ -16497,6 +16497,6 @@ _subresources={
 }
 }
 fbx/importer=0
-fbx/allow_geometry_helper_nodes=false
+fbx/allow_geometry_helper_nodes=true
 fbx/embedded_image_handling=1
 fbx/naming_version=2
