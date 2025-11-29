@@ -1,7 +1,7 @@
-[gd_scene load_steps=29 format=3 uid="uid://bujeumngbk1ab"]
+[gd_scene load_steps=34 format=3 uid="uid://bujeumngbk1ab"]
 
 [ext_resource type="PackedScene" uid="uid://p4y3tg8cs737" path="res://playground/Playground.gltf" id="1_duj6w"]
-[ext_resource type="Script" uid="uid://ltqg3aoiwgnm" path="res://playground/character_body_3d.gd" id="2_s8dwm"]
+[ext_resource type="Script" uid="uid://ch1kvyfwthcr4" path="res://character/scripts/PlayerController.gd" id="3_gwu22"]
 [ext_resource type="PackedScene" uid="uid://b78v6gjyrpm3w" path="res://character/Character.fbx" id="4_gwu22"]
 [ext_resource type="PackedScene" uid="uid://dfx8h05vrgetk" path="res://playground/boxes.gltf" id="13_7k1vm"]
 
@@ -25,7 +25,7 @@ animation = &"Fall"
 animation = &"Land"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tdwk3"]
-animation = &"Mantle"
+animation = &"Turn"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_c3jux"]
 animation = &"idle"
@@ -38,6 +38,30 @@ animation = &"run"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_t6q0n"]
 animation = &"walk"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ttet"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_s8dwm"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7k1vm"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_w627l"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_epjcp"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vwmbj"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_v0ax3"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jq65x"]
+advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gwu22"]
 advance_mode = 2
@@ -60,40 +84,30 @@ advance_mode = 2
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_t6q0n"]
 advance_mode = 2
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ttet"]
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_soaeu"]
 advance_mode = 2
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_s8dwm"]
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_uu1lh"]
 advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7k1vm"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_w627l"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_0ttet"]
-states/Fall/node = SubResource("AnimationNodeAnimation_gwu22")
-states/Fall/position = Vector2(-70, 313)
-states/Land/node = SubResource("AnimationNodeAnimation_l2c8s")
-states/Land/position = Vector2(87, 313)
-states/Mantle/node = SubResource("AnimationNodeAnimation_tdwk3")
-states/Mantle/position = Vector2(260, 105)
-states/Start/position = Vector2(255, 189)
-states/idle/node = SubResource("AnimationNodeAnimation_c3jux")
-states/idle/position = Vector2(255, 313)
-states/jump/node = SubResource("AnimationNodeAnimation_yqau4")
-states/jump/position = Vector2(255, 512)
-states/run/node = SubResource("AnimationNodeAnimation_7io06")
-states/run/position = Vector2(568, 313)
-states/walk/node = SubResource("AnimationNodeAnimation_t6q0n")
-states/walk/position = Vector2(411, 313)
-transitions = ["idle", "walk", SubResource("AnimationNodeStateMachineTransition_gwu22"), "walk", "idle", SubResource("AnimationNodeStateMachineTransition_l2c8s"), "walk", "run", SubResource("AnimationNodeStateMachineTransition_tdwk3"), "run", "walk", SubResource("AnimationNodeStateMachineTransition_c3jux"), "jump", "Fall", SubResource("AnimationNodeStateMachineTransition_yqau4"), "Fall", "Land", SubResource("AnimationNodeStateMachineTransition_7io06"), "Land", "idle", SubResource("AnimationNodeStateMachineTransition_t6q0n"), "Start", "idle", SubResource("AnimationNodeStateMachineTransition_0ttet"), "idle", "jump", SubResource("AnimationNodeStateMachineTransition_s8dwm"), "walk", "jump", SubResource("AnimationNodeStateMachineTransition_7k1vm"), "run", "jump", SubResource("AnimationNodeStateMachineTransition_w627l")]
-graph_offset = Vector2(-191, 78)
 
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_s8dwm"]
-states/StateMachine/node = SubResource("AnimationNodeStateMachine_0ttet")
-states/StateMachine/position = Vector2(393, 69)
+states/Fall/node = SubResource("AnimationNodeAnimation_gwu22")
+states/Fall/position = Vector2(-151, 128)
+states/Land/node = SubResource("AnimationNodeAnimation_l2c8s")
+states/Land/position = Vector2(193, -25)
+states/Start/position = Vector2(51, 128)
+states/Turn/node = SubResource("AnimationNodeAnimation_tdwk3")
+states/Turn/position = Vector2(490, 23)
+states/idle/node = SubResource("AnimationNodeAnimation_c3jux")
+states/idle/position = Vector2(193, 128)
+states/jump/node = SubResource("AnimationNodeAnimation_yqau4")
+states/jump/position = Vector2(193, 286)
+states/run/node = SubResource("AnimationNodeAnimation_7io06")
+states/run/position = Vector2(490, 128)
+states/walk/node = SubResource("AnimationNodeAnimation_t6q0n")
+states/walk/position = Vector2(339, 128)
+transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_0ttet"), "idle", "walk", SubResource("AnimationNodeStateMachineTransition_s8dwm"), "walk", "run", SubResource("AnimationNodeStateMachineTransition_7k1vm"), "walk", "idle", SubResource("AnimationNodeStateMachineTransition_w627l"), "run", "walk", SubResource("AnimationNodeStateMachineTransition_epjcp"), "jump", "Fall", SubResource("AnimationNodeStateMachineTransition_vwmbj"), "Fall", "Land", SubResource("AnimationNodeStateMachineTransition_v0ax3"), "Land", "idle", SubResource("AnimationNodeStateMachineTransition_jq65x"), "idle", "jump", SubResource("AnimationNodeStateMachineTransition_gwu22"), "walk", "jump", SubResource("AnimationNodeStateMachineTransition_l2c8s"), "run", "jump", SubResource("AnimationNodeStateMachineTransition_tdwk3"), "Land", "walk", SubResource("AnimationNodeStateMachineTransition_c3jux"), "Land", "run", SubResource("AnimationNodeStateMachineTransition_yqau4"), "run", "Turn", SubResource("AnimationNodeStateMachineTransition_7io06"), "Turn", "run", SubResource("AnimationNodeStateMachineTransition_t6q0n"), "Turn", "walk", SubResource("AnimationNodeStateMachineTransition_soaeu"), "Turn", "idle", SubResource("AnimationNodeStateMachineTransition_uu1lh")]
+graph_offset = Vector2(-146, -83)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
 radius = 0.5629883
@@ -115,7 +129,7 @@ collision_layer = 2
 axis_lock_angular_x = true
 axis_lock_angular_y = true
 axis_lock_angular_z = true
-script = ExtResource("2_s8dwm")
+script = ExtResource("3_gwu22")
 
 [node name="Character" parent="Player" instance=ExtResource("4_gwu22")]
 
