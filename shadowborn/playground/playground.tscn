@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bujeumngbk1ab"]
+[gd_scene load_steps=17 format=3 uid="uid://bujeumngbk1ab"]
 
 [ext_resource type="PackedScene" uid="uid://p4y3tg8cs737" path="res://playground/Playground.gltf" id="1_duj6w"]
 [ext_resource type="Script" uid="uid://ltqg3aoiwgnm" path="res://playground/character_body_3d.gd" id="2_s8dwm"]
@@ -17,6 +17,45 @@ sky_material = SubResource("ProceduralSkyMaterial_8vnjg")
 [sub_resource type="Environment" id="Environment_gwu22"]
 background_mode = 2
 sky = SubResource("Sky_tuib3")
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gwu22"]
+animation = &"Fall"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_l2c8s"]
+animation = &"idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tdwk3"]
+animation = &"jump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_c3jux"]
+animation = &"Mantle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_yqau4"]
+animation = &"run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7io06"]
+animation = &"Turn"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_t6q0n"]
+animation = &"walk"
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_0ttet"]
+graph_offset = Vector2(-352.73682, -81.069275)
+nodes/output/position = Vector2(280, 100)
+nodes/Idle/node = SubResource("AnimationNodeAnimation_l2c8s")
+nodes/Idle/position = Vector2(-40, 120)
+nodes/Fall/node = SubResource("AnimationNodeAnimation_gwu22")
+nodes/Fall/position = Vector2(-40, 320)
+nodes/Mantle/node = SubResource("AnimationNodeAnimation_c3jux")
+nodes/Mantle/position = Vector2(-40, 520)
+nodes/Turn/node = SubResource("AnimationNodeAnimation_7io06")
+nodes/Turn/position = Vector2(-40, 720)
+nodes/Jump/node = SubResource("AnimationNodeAnimation_tdwk3")
+nodes/Jump/position = Vector2(-40, 920)
+nodes/Run/node = SubResource("AnimationNodeAnimation_yqau4")
+nodes/Run/position = Vector2(-40, 1120)
+nodes/Walk/node = SubResource("AnimationNodeAnimation_t6q0n")
+nodes/Walk/position = Vector2(-40, 1320)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
 radius = 0.5629883
@@ -40,9 +79,61 @@ axis_lock_angular_y = true
 axis_lock_angular_z = true
 script = ExtResource("2_s8dwm")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Player"]
-
 [node name="Character" parent="Player" instance=ExtResource("4_gwu22")]
+
+[node name="IK Chain Right Arm" parent="Player/Character" index="0"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.48565552, 0.96712005, -0.21349137)
+
+[node name="IK Chain Left Arm" parent="Player/Character" index="1"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.42624885, 1.0242857, 0.37351286)
+
+[node name="IK Chain Right Leg" parent="Player/Character" index="2"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0.19299753, -0.0010524662, 0.48155499)
+
+[node name="IK Chain Left Leg" parent="Player/Character" index="3"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -0.19299977, 0.14722203, -0.5964777)
+
+[node name="Skeleton3D" parent="Player/Character/Point001" index="0"]
+bones/0/position = Vector3(0, 0, 0.78928083)
+bones/0/rotation = Quaternion(-0.50000006, -0.5, -0.49999994, 0.5000001)
+bones/1/rotation = Quaternion(-0.00032385456, 0.025645679, 0.012576286, 0.99959195)
+bones/2/rotation = Quaternion(-0.0010354359, 0.026267463, 0.01328649, 0.99956614)
+bones/3/rotation = Quaternion(-0.014221278, -0.05150009, -0.02653528, 0.9982192)
+bones/4/rotation = Quaternion(-0.0013614765, 0.0021848276, 0.8612505, 0.508174)
+bones/5/rotation = Quaternion(0.7243069, 0.08843741, 0.27459595, 0.62622315)
+bones/6/rotation = Quaternion(-9.463836e-09, 0.27093473, 3.3623987e-08, 0.9625977)
+bones/7/rotation = Quaternion(4.8043813e-07, -0.000557203, -2.2324983e-07, 0.9999999)
+bones/8/rotation = Quaternion(3.35068e-06, 2.0860498e-06, -0.8484255, 0.5293148)
+bones/9/rotation = Quaternion(-0.5271675, 0.41840112, -0.07038185, 0.7362617)
+bones/10/rotation = Quaternion(-6.362391e-08, 0.20342174, 1.3218937e-08, 0.9790912)
+bones/11/rotation = Quaternion(-4.7502462e-07, -0.0005572608, -8.967173e-08, 0.9999999)
+bones/12/rotation = Quaternion(-6.178032e-05, 0.9294446, 0.00015589228, 0.36896172)
+bones/13/rotation = Quaternion(-1.0776639e-05, 0.17466244, 6.0110517e-05, 0.9846284)
+bones/14/rotation = Quaternion(0.00014969116, -0.5505888, -9.7777185e-05, 0.83477664)
+bones/15/rotation = Quaternion(-3.707661e-06, 0.9887574, 3.5560895e-06, -0.14952913)
+bones/16/rotation = Quaternion(-4.298326e-06, 0.36652142, 1.1062846e-05, 0.9304096)
+bones/17/rotation = Quaternion(1.9202698e-06, -0.8060383, -7.690669e-06, 0.59186345)
+
+[node name="right_foot_helper" parent="Player/Character/Point001/Skeleton3D" index="0"]
+transform = Transform3D(4.7683713e-07, 2, -2.3841858e-07, 0, 2.3841858e-07, 2, 1.9999999, -4.7683716e-07, 0, 0, 0, 0.78928083)
+bone_idx = 0
+
+[node name="right_foot_helper" parent="Player/Character/Point001/Skeleton3D/right_foot_helper" index="0"]
+transform = Transform3D(-2.1855692e-08, 4.7478176e-07, 0.49999997, 7.6602186e-10, 0.5, -4.7478173e-07, -0.49999997, 7.6600115e-10, -2.1855692e-08, -0.46997344, 0.25000033, -1.2177972e-07)
+
+[node name="left_foot_helper" parent="Player/Character/Point001/Skeleton3D" index="1"]
+transform = Transform3D(4.7683713e-07, 2, -2.3841858e-07, 0, 2.3841858e-07, 2, 1.9999999, -4.7683716e-07, 0, 0, 0, 0.78928083)
+bone_idx = 0
+
+[node name="left_foot_helper" parent="Player/Character/Point001/Skeleton3D/left_foot_helper" index="0"]
+transform = Transform3D(-0.3395956, 2.865515e-07, 0.36698064, -1.6193182e-07, 0.5, -5.402657e-07, -0.36698064, -4.8579545e-07, -0.3395956, -0.46997374, -0.24999979, 1.1477633e-07)
+
+[node name="head_helper" parent="Player/Character/Point001/Skeleton3D" index="2"]
+transform = Transform3D(4.7683713e-07, 2, -2.3841858e-07, 0, 2.3841858e-07, 2, 1.9999999, -4.7683716e-07, 0, 0, 0, 0.78928083)
+bone_idx = 0
+
+[node name="head_helper" parent="Player/Character/Point001/Skeleton3D/head_helper" index="0"]
+transform = Transform3D(0.49999997, -0.00014007959, -2.921674e-05, 0.00014092225, 0.499757, 0.015585763, 2.4836047e-05, -0.015585771, 0.49975702, -0.325381, 0.0024811903, -0.028358746)
 
 [node name="wall_check" type="RayCast3D" parent="Player/Character"]
 transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.2, 0.39999998)
@@ -54,6 +145,10 @@ target_position = Vector3(0, 0, -1)
 
 [node name="ledge_down" type="RayCast3D" parent="Player/Character"]
 transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 2.1, 0.59999996)
+
+[node name="AnimationTree" type="AnimationTree" parent="Player/Character"]
+tree_root = SubResource("AnimationNodeBlendTree_0ttet")
+anim_player = NodePath("../AnimationPlayer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3892751, 0)
@@ -68,3 +163,5 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.51
 unique_name_in_owner = true
 transform = Transform3D(0.99999994, 0, 0, 0, 0.7071067, 0.7071067, 0, -0.7071067, 0.7071067, 1.703689, 11.318947, 11.025788)
 fov = 40.0
+
+[editable path="Player/Character"]
