@@ -8265,7 +8265,7 @@ _subresources={
 },
 "idle": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://character/Animations/idle.res",
+"save_to_file/fallback_path": "res://character/Animations/Idle.res",
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "uid://ct2ac3g0d3eku",
 "settings/loop_mode": 1,
@@ -10321,7 +10321,7 @@ _subresources={
 },
 "jump": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://character/Animations/jump.res",
+"save_to_file/fallback_path": "res://character/Animations/Jump.res",
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "uid://1yeydg46vtcj",
 "settings/loop_mode": 0,
@@ -12377,7 +12377,7 @@ _subresources={
 },
 "run": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://character/Animations/run.res",
+"save_to_file/fallback_path": "res://character/Animations/Run.res",
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "uid://y6sabnh6udlp",
 "settings/loop_mode": 1,
@@ -14433,7 +14433,7 @@ _subresources={
 },
 "walk": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://character/Animations/walk.res",
+"save_to_file/fallback_path": "res://character/Animations/Walk.res",
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "uid://bregtlr3f4tab",
 "settings/loop_mode": 1,

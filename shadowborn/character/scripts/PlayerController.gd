@@ -14,16 +14,18 @@ var _jump_velocity: float = 0.0
 var _was_on_floor: bool = false
 var _time_in_air: float = 0.0
 
-@onready var _camera: Camera3D = $"../CameraRig/Camera3D"
+# CameraRig and Camera3D are children of Player
+@onready var _camera: Camera3D = $CameraRig/Camera3D
 @onready var _anim_tree: AnimationTree = $Character/AnimationTree
 @onready var _anim_state: AnimationNodeStateMachinePlayback = _anim_tree.get("parameters/playback")
+
 
 func _ready() -> void:
 	_gravity = float(ProjectSettings.get_setting("physics/3d/default_gravity"))
 	_jump_velocity = sqrt(2.0 * _gravity * jump_height)
 
 	_anim_tree.active = true
-	_anim_state.travel("Idle")
+	_anim_state.travel("idle")   # lowercase idle
 
 
 func _physics_process(delta: float) -> void:
@@ -33,7 +35,6 @@ func _physics_process(delta: float) -> void:
 	_apply_horizontal_movement(input_dir, on_floor, delta)
 	_apply_vertical_movement(on_floor, delta)
 
-	# ✅ Correct CharacterBody3D call
 	move_and_slide()
 
 	_update_orientation(input_dir, delta)
@@ -125,26 +126,30 @@ func _update_animation(on_floor: bool, input_dir: Vector3, _delta: float) -> voi
 	var is_running: bool = Input.is_action_pressed("Run")
 	var current: StringName = _anim_state.get_current_node()
 
+	# Jump / Fall
 	if not on_floor:
 		if velocity.y > 0.0:
-			if current != "Jump":
-				_anim_state.travel("Jump")
+			if current != "jump":
+				_anim_state.travel("jump")
 		elif _time_in_air > 0.05 and current != "Fall":
-			_anim_state.travel("Fall")
+			_anim_state.travel("Fall")  # capital F
 		return
 
+	# Landing
 	if not _was_on_floor and on_floor:
-		_anim_state.travel("Land")
+		_anim_state.travel("Land")     # capital L
 		return
 
+	# Idle
 	if horizontal_speed < 0.1 or input_dir == Vector3.ZERO:
-		if current != "Idle":
-			_anim_state.travel("Idle")
+		if current != "idle":
+			_anim_state.travel("idle")
 		return
 
+	# Walk / Run
 	if is_running:
-		if current != "Run":
-			_anim_state.travel("Run")
+		if current != "run":
+			_anim_state.travel("run")
 	else:
-		if current != "Walk":
-			_anim_state.travel("Walk")
+		if current != "walk":
+			_anim_state.travel("walk")
