@@ -1,26 +1,45 @@
 extends CharacterBody3D
 class_name PlayerController
 
-@export var walk_speed: float = 3.5
-@export var run_speed: float = 7.0
-@export var acceleration: float = 18.0
-@export var deceleration: float = 24.0
-@export var air_acceleration: float = 8.0
-@export_range(0.05, 5.0, 0.05) var run_acceleration_time: float = 1.0
-@export_range(1.0, 2.0, 0.05) var walk_animation_speed: float = 1.2
-@export_range(1.0, 2.5, 0.05) var landing_animation_speed: float = 1.5
+@export var walk_speed: float = 4.0
+@export var run_speed: float = 8.0
+@export var acceleration: float = 35.0
+@export var deceleration: float = 45.0
+@export var air_acceleration: float = 12.0
+@export_range(0.0, 60.0, 1.0) var max_walkable_slope_degrees: float = 50.0
+@export_range(0.0, 1.0, 0.05) var floor_snap_distance: float = 0.4
+@export var keep_constant_speed_on_slopes: bool = true
+@export_range(0.05, 5.0, 0.05) var run_acceleration_time: float = 0.35
+@export_range(1.0, 2.0, 0.05) var walk_animation_speed: float = 1.4
+@export_range(1.0, 2.0, 0.05) var run_animation_speed: float = 1.2
+@export_range(1.0, 2.5, 0.05) var landing_animation_speed: float = 1.65
 @export_range(-1.0, 0.0, 0.05) var slide_direction_threshold: float = -0.85
 @export_range(0.0, 1.0, 0.05) var slide_minimum_run_ratio: float = 0.95
 @export_range(0.0, 0.5, 0.01) var slide_reversal_grace_time: float = 0.15
 @export_range(0.5, 3.0, 0.05) var turn_duration_scale: float = 0.8
-@export var jump_height: float = 1.0
+@export var jump_height: float = 2.0
+@export var walking_jump_distance: float = 2.0
+@export var running_jump_distance: float = 6.1
+@export_range(1.0, 5.0, 0.1) var jump_rise_gravity_multiplier: float = 2.3
+@export_range(1.0, 6.0, 0.1) var jump_fall_gravity_multiplier: float = 3.5
+@export_range(1.0, 8.0, 0.1) var jump_release_gravity_multiplier: float = 4.0
+@export_range(1.0, 2.5, 0.05) var jump_animation_speed: float = 1.65
+@export_range(1.0, 2.5, 0.05) var fall_animation_speed: float = 1.55
 @export var max_fall_speed: float = 30.0
+@export_range(2.0, 4.0, 0.1) var mantle_max_height: float = 3.2
+@export_range(1.0, 3.0, 0.1) var mantle_min_height: float = 2.4
+@export_range(0.5, 2.0, 0.05) var mantle_reach: float = 1.0
+@export_range(0.5, 2.0, 0.05) var mantle_duration_scale: float = 1.0
 
 var _gravity: float = 0.0
 var _jump_velocity: float = 0.0
 var _was_on_floor: bool = false
 var _time_in_air: float = 0.0
 var _has_been_airborne: bool = false
+var _is_committed_jump: bool = false
+var _jump_started_running: bool = false
+var _jump_horizontal_direction: Vector3 = Vector3.ZERO
+var _jump_horizontal_speed: float = 0.0
 var _is_landing: bool = false
 var _landing_time_remaining: float = 0.0
 var _landing_duration: float = 0.0
@@ -33,10 +52,22 @@ var _slide_exit_direction: Vector3 = Vector3.ZERO
 var _slide_start_speed: float = 0.0
 var _slide_reversal_grace_remaining: float = 0.0
 var _slide_start_angle: float = 0.0
+var _cardinal_facing: Vector3 = Vector3.BACK
+var _turn_animation_duration: float = 0.0
+var _slide_animation_speed: float = 1.0
+var _is_mantling: bool = false
+var _mantle_requires_jump_release: bool = false
+var _mantle_start_position: Vector3 = Vector3.ZERO
+var _mantle_control_position: Vector3 = Vector3.ZERO
+var _mantle_target_position: Vector3 = Vector3.ZERO
+var _mantle_elapsed: float = 0.0
+var _mantle_duration: float = 0.0
+var _mantle_animation_speed: float = 1.0
 
 # CameraRig and Camera3D are children of Player
 @onready var _camera: Camera3D = $CameraRig/Camera3D
 @onready var _character: Node3D = $Character
+@onready var _skeleton: Skeleton3D = $Character/RootRotationFix/Skeleton3D
 @onready var _anim_player: AnimationPlayer = $Character/AnimationPlayer
 @onready var _anim_tree: AnimationTree = $Character/AnimationTree
 @onready var _anim_state: AnimationNodeStateMachinePlayback = _anim_tree.get("parameters/playback")
@@ -44,23 +75,80 @@ var _slide_start_angle: float = 0.0
 
 func _ready() -> void:
 	_gravity = float(ProjectSettings.get_setting("physics/3d/default_gravity"))
-	_jump_velocity = sqrt(2.0 * _gravity * jump_height)
+	_jump_velocity = sqrt(
+		2.0 * _gravity * jump_rise_gravity_multiplier * jump_height
+	)
+	floor_max_angle = deg_to_rad(max_walkable_slope_degrees)
+	floor_snap_length = floor_snap_distance
+	floor_constant_speed = keep_constant_speed_on_slopes
 
+	_create_in_place_mantle_animation()
 	_anim_tree.active = true
 	_anim_tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	_anim_state.travel("idle")   # lowercase idle
 	var turn_animation: Animation = _anim_player.get_animation("Turn")
 	if turn_animation != null:
-		_slide_duration = turn_animation.length * turn_duration_scale
+		_turn_animation_duration = turn_animation.length
+		_slide_duration = _turn_animation_duration * turn_duration_scale
 	var land_animation: Animation = _anim_player.get_animation("Land")
 	if land_animation != null:
 		_landing_duration = land_animation.length / landing_animation_speed
+
+
+func _create_in_place_mantle_animation() -> void:
+	var source: Animation = _anim_player.get_animation("Mantle")
+	if source == null or _skeleton.get_bone_count() == 0:
+		return
+
+	var in_place: Animation = source.duplicate(true)
+	var root_bone_name: StringName = _skeleton.get_bone_name(0)
+	for track_index: int in in_place.get_track_count():
+		if in_place.track_get_type(track_index) != Animation.TYPE_POSITION_3D:
+			continue
+		var track_path: NodePath = in_place.track_get_path(track_index)
+		if track_path.get_subname_count() == 0:
+			continue
+		if track_path.get_subname(track_path.get_subname_count() - 1) != root_bone_name:
+			continue
+		if in_place.track_get_key_count(track_index) == 0:
+			continue
+
+		var root_start_position: Vector3 = in_place.track_get_key_value(track_index, 0)
+		for key_index: int in in_place.track_get_key_count(track_index):
+			in_place.track_set_key_value(track_index, key_index, root_start_position)
+
+	var library: AnimationLibrary = _anim_player.get_animation_library("")
+	if library == null:
+		return
+	if library.has_animation("Mantle_InPlace"):
+		library.remove_animation("Mantle_InPlace")
+	library.add_animation("Mantle_InPlace", in_place)
+
+	var state_machine: AnimationNodeStateMachine = _anim_tree.tree_root
+	var mantle_node: AnimationNodeAnimation = state_machine.get_node("Mantle")
+	if mantle_node != null:
+		mantle_node.animation = &"Mantle_InPlace"
 
 
 func _physics_process(delta: float) -> void:
 	var input_dir: Vector3 = _get_input_direction()
 	var was_on_floor: bool = is_on_floor()
 	var handled_slide: bool = false
+
+	if not Input.is_action_pressed("Jump"):
+		_mantle_requires_jump_release = false
+
+	if _is_mantling:
+		_update_mantle(delta)
+		_update_animation(true, Vector3.ZERO, delta)
+		_advance_animation(delta)
+		return
+
+	if _try_start_mantle(input_dir, was_on_floor):
+		_update_mantle(delta)
+		_advance_animation(delta)
+		return
+
 	_update_slide_reversal_window(delta)
 
 	if _is_sliding:
@@ -112,7 +200,117 @@ func _get_input_direction() -> Vector3:
 	return direction.normalized()
 
 
+func _try_start_mantle(input_dir: Vector3, on_floor: bool) -> bool:
+	if (
+		not on_floor
+		or input_dir == Vector3.ZERO
+		or not Input.is_action_pressed("Jump")
+		or _mantle_requires_jump_release
+	):
+		return false
+
+	var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+	var feet_position: Vector3 = global_position
+	var forward: Vector3 = input_dir.normalized()
+	var exclusions: Array[RID] = [get_rid()]
+
+	var wall_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		feet_position + Vector3.UP * 1.2,
+		feet_position + Vector3.UP * 1.2 + forward * mantle_reach,
+		collision_mask,
+		exclusions
+	)
+	var wall_hit: Dictionary = space_state.intersect_ray(wall_query)
+	if wall_hit.is_empty():
+		return false
+
+	var wall_normal: Vector3 = wall_hit["normal"]
+	if absf(wall_normal.dot(Vector3.UP)) > 0.2:
+		return false
+
+	var wall_point: Vector3 = wall_hit["position"]
+	var clearance_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		feet_position + Vector3.UP * (mantle_max_height + 0.2),
+		feet_position + Vector3.UP * (mantle_max_height + 0.2) + forward * (mantle_reach + 0.5),
+		collision_mask,
+		exclusions
+	)
+	if not space_state.intersect_ray(clearance_query).is_empty():
+		return false
+
+	var down_start: Vector3 = Vector3(
+		wall_point.x + forward.x * 0.7,
+		feet_position.y + mantle_max_height + 0.5,
+		wall_point.z + forward.z * 0.7
+	)
+	var down_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+		down_start,
+		down_start + Vector3.DOWN * (mantle_max_height + 1.0),
+		collision_mask,
+		exclusions
+	)
+	var top_hit: Dictionary = space_state.intersect_ray(down_query)
+	if top_hit.is_empty():
+		return false
+
+	var top_normal: Vector3 = top_hit["normal"]
+	var top_position: Vector3 = top_hit["position"]
+	var ledge_height: float = top_position.y - feet_position.y
+	if (
+		top_normal.dot(Vector3.UP) < 0.85
+		or ledge_height < mantle_min_height
+		or ledge_height > mantle_max_height
+	):
+		return false
+
+	_start_mantle(top_position, forward)
+	return true
+
+
+func _start_mantle(top_position: Vector3, forward: Vector3) -> void:
+	_is_mantling = true
+	_mantle_requires_jump_release = true
+	_mantle_elapsed = 0.0
+	_mantle_start_position = global_position
+	_mantle_target_position = top_position + forward * 0.45 + Vector3.UP * 0.05
+	_mantle_control_position = Vector3(
+		_mantle_start_position.x,
+		_mantle_target_position.y + 0.25,
+		_mantle_start_position.z
+	)
+	velocity = Vector3.ZERO
+	_run_buildup = 0.0
+	_is_landing = false
+	_is_sliding = false
+
+	var mantle_animation: Animation = _anim_player.get_animation("Mantle")
+	var source_duration: float = mantle_animation.length if mantle_animation != null else 0.7
+	_mantle_duration = source_duration * mantle_duration_scale
+	_mantle_animation_speed = source_duration / maxf(_mantle_duration, 0.01)
+	_anim_state.travel("Mantle")
+
+
+func _update_mantle(delta: float) -> void:
+	_mantle_elapsed = minf(_mantle_elapsed + delta, _mantle_duration)
+	var progress: float = _mantle_elapsed / maxf(_mantle_duration, 0.01)
+	var first_leg: Vector3 = _mantle_start_position.lerp(_mantle_control_position, progress)
+	var second_leg: Vector3 = _mantle_control_position.lerp(_mantle_target_position, progress)
+	global_position = first_leg.lerp(second_leg, progress)
+
+	if progress < 1.0:
+		return
+
+	_is_mantling = false
+	velocity = Vector3.ZERO
+	_anim_state.travel("idle")
+
+
 func _apply_horizontal_movement(input_dir: Vector3, on_floor: bool, delta: float) -> void:
+	if _is_committed_jump and not on_floor:
+		velocity.x = _jump_horizontal_direction.x * _jump_horizontal_speed
+		velocity.z = _jump_horizontal_direction.z * _jump_horizontal_speed
+		return
+
 	var horizontal_vel: Vector3 = Vector3(velocity.x, 0.0, velocity.z)
 	var target_velocity: Vector3 = Vector3.ZERO
 	var movement_rate: float = deceleration if on_floor else air_acceleration
@@ -168,13 +366,19 @@ func _update_slide_reversal_window(delta: float) -> void:
 		)
 
 
-func _start_slide(exit_direction: Vector3) -> void:
+func _start_slide(exit_direction: Vector3, forced_distance: float = 0.0) -> void:
 	var horizontal_velocity := Vector3(velocity.x, 0.0, velocity.z)
 	_is_sliding = true
-	_slide_time_remaining = _slide_duration
 	_slide_direction = horizontal_velocity.normalized()
 	_slide_exit_direction = exit_direction
 	_slide_start_speed = horizontal_velocity.length()
+	var exit_speed: float = walk_speed if exit_direction != Vector3.ZERO else 0.0
+	if forced_distance > 0.0:
+		_slide_duration = 2.0 * forced_distance / maxf(_slide_start_speed + exit_speed, 0.01)
+	else:
+		_slide_duration = _turn_animation_duration * turn_duration_scale
+	_slide_time_remaining = _slide_duration
+	_slide_animation_speed = _turn_animation_duration / maxf(_slide_duration, 0.01)
 	_slide_reversal_grace_remaining = 0.0
 	_slide_start_angle = _character.rotation.y
 	_run_buildup = 0.0
@@ -211,10 +415,31 @@ func _apply_vertical_movement(on_floor: bool, delta: float) -> void:
 			_is_landing = false
 			_landing_time_remaining = 0.0
 			_has_been_airborne = true
+			var horizontal_velocity := Vector3(velocity.x, 0.0, velocity.z)
+			_jump_started_running = (
+				Input.is_action_pressed("Run")
+				and _run_buildup >= 0.5
+				and horizontal_velocity.length() > walk_speed
+			)
+			_is_committed_jump = horizontal_velocity.length() > 0.1
+			if _is_committed_jump:
+				_jump_horizontal_direction = horizontal_velocity.normalized()
+				var jump_distance: float = (
+					running_jump_distance
+					if _jump_started_running
+					else walking_jump_distance
+				)
+				_jump_horizontal_speed = jump_distance / _get_jump_flight_time()
 			velocity.y = _jump_velocity
 			return
 
-	velocity.y -= _gravity * delta
+	var gravity_multiplier: float = jump_fall_gravity_multiplier
+	if velocity.y > 0.0:
+		gravity_multiplier = jump_rise_gravity_multiplier
+		if not _is_committed_jump and not Input.is_action_pressed("Jump"):
+			gravity_multiplier = jump_release_gravity_multiplier
+
+	velocity.y -= _gravity * gravity_multiplier * delta
 	if velocity.y < -max_fall_speed:
 		velocity.y = -max_fall_speed
 
@@ -222,23 +447,34 @@ func _apply_vertical_movement(on_floor: bool, delta: float) -> void:
 		_time_in_air += delta
 
 
-func _update_orientation(input_dir: Vector3, delta: float) -> void:
+func _update_orientation(input_dir: Vector3, _delta: float) -> void:
 	if input_dir == Vector3.ZERO:
 		return
 
-	var target_angle: float = atan2(input_dir.x, input_dir.z)
-	var rotation_weight: float = clamp(14.0 * delta, 0.0, 1.0)
-	_character.rotation.y = lerp_angle(
-		_character.rotation.y,
-		target_angle,
-		rotation_weight
-	)
+	var has_horizontal_input: bool = absf(input_dir.x) > 0.25
+	var has_vertical_input: bool = absf(input_dir.z) > 0.25
+
+	# A diagonal keeps the current compatible cardinal facing. This lets the
+	# character move partly sideways without ever rotating through 360 degrees.
+	if has_horizontal_input and has_vertical_input and _cardinal_facing.dot(input_dir) >= 0.0:
+		pass
+	elif absf(input_dir.x) > absf(input_dir.z):
+		_cardinal_facing = Vector3(signf(input_dir.x), 0.0, 0.0)
+	else:
+		_cardinal_facing = Vector3(0.0, 0.0, signf(input_dir.z))
+
+	_character.rotation.y = atan2(_cardinal_facing.x, _cardinal_facing.z)
 
 
 func _update_animation(on_floor: bool, input_dir: Vector3, delta: float) -> void:
 	var horizontal_speed: float = Vector3(velocity.x, 0.0, velocity.z).length()
 	var is_running: bool = Input.is_action_pressed("Run") and _run_buildup >= 0.5
 	var current: StringName = _anim_state.get_current_node()
+
+	if _is_mantling:
+		if current != "Mantle":
+			_anim_state.travel("Mantle")
+		return
 
 	if _is_sliding:
 		if current != "Turn":
@@ -267,6 +503,8 @@ func _update_animation(on_floor: bool, input_dir: Vector3, delta: float) -> void
 	# Landing
 	if _has_been_airborne and not _was_on_floor and on_floor:
 		_has_been_airborne = false
+		_is_committed_jump = false
+		_jump_started_running = false
 		_is_landing = true
 		_landing_time_remaining = _landing_duration
 		_anim_state.travel("Land")
@@ -290,9 +528,25 @@ func _update_animation(on_floor: bool, input_dir: Vector3, delta: float) -> void
 func _advance_animation(delta: float) -> void:
 	var playback_speed: float = 1.0
 	if _is_sliding:
-		playback_speed = 1.0 / turn_duration_scale
+		playback_speed = _slide_animation_speed
+	elif _is_mantling or _anim_state.get_current_node() == "Mantle":
+		playback_speed = _mantle_animation_speed
 	elif _is_landing or _anim_state.get_current_node() == "Land":
 		playback_speed = landing_animation_speed
+	elif _anim_state.get_current_node() == "jump":
+		playback_speed = jump_animation_speed
+	elif _anim_state.get_current_node() == "Fall":
+		playback_speed = fall_animation_speed
+	elif _anim_state.get_current_node() == "run":
+		playback_speed = run_animation_speed
 	elif _anim_state.get_current_node() == "walk":
 		playback_speed = walk_animation_speed
 	_anim_tree.advance(delta * playback_speed)
+
+
+func _get_jump_flight_time() -> float:
+	var rise_gravity: float = _gravity * jump_rise_gravity_multiplier
+	var fall_gravity: float = _gravity * jump_fall_gravity_multiplier
+	var rise_time: float = _jump_velocity / rise_gravity
+	var fall_time: float = sqrt(2.0 * jump_height / fall_gravity)
+	return rise_time + fall_time
