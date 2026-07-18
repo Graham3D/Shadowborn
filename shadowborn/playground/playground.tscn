@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bujeumngbk1ab"]
+[gd_scene format=3 uid="uid://bujeumngbk1ab"]
 
 [ext_resource type="PackedScene" uid="uid://p4y3tg8cs737" path="res://playground/Playground.gltf" id="1_duj6w"]
 [ext_resource type="Script" uid="uid://ch1kvyfwthcr4" path="res://character/scripts/PlayerController.gd" id="3_gwu22"]
@@ -24,6 +24,9 @@ animation = &"Fall"
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_l2c8s"]
 animation = &"Land"
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tdwk3"]
+animation = &"Turn"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_c3jux"]
 animation = &"idle"
 
@@ -37,75 +40,114 @@ animation = &"run"
 animation = &"walk"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ttet"]
-advance_mode = 2
+xfade_time = 0.15
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gwu22"]
-advance_mode = 2
+xfade_time = 0.15
 
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_l2c8s"]
-advance_mode = 2
-
-[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tdwk3"]
-advance_mode = 2
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_idle"]
+xfade_time = 0.15
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c3jux"]
-advance_mode = 2
+xfade_time = 0.15
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_run_walk"]
+xfade_time = 0.15
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_t6q0n"]
+xfade_time = 0.15
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_run_idle"]
+xfade_time = 0.15
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_run_turn"]
+xfade_time = 0.05
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_turn_walk"]
+xfade_time = 0.05
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_idle_turn"]
+xfade_time = 0.05
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_walk_turn"]
+xfade_time = 0.05
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_l2c8s"]
+xfade_time = 0.1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tdwk3"]
+xfade_time = 0.1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_s8dwm"]
+xfade_time = 0.1
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_yqau4"]
-advance_mode = 2
+xfade_time = 0.05
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7io06"]
-advance_mode = 2
+xfade_time = 0.05
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_land_idle"]
+xfade_time = 0.1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_land_walk"]
+xfade_time = 0.1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_land_run"]
+xfade_time = 0.1
 
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_s8dwm"]
+states/End/position = Vector2(193, 20)
 states/Fall/node = SubResource("AnimationNodeAnimation_gwu22")
-states/Fall/position = Vector2(339, 19)
+states/Fall/position = Vector2(419, 359)
 states/Land/node = SubResource("AnimationNodeAnimation_l2c8s")
-states/Land/position = Vector2(339, -73)
+states/Land/position = Vector2(419, 472)
 states/Start/position = Vector2(52, 128)
+states/Turn/node = SubResource("AnimationNodeAnimation_tdwk3")
+states/Turn/position = Vector2(556, 128)
 states/idle/node = SubResource("AnimationNodeAnimation_c3jux")
 states/idle/position = Vector2(193, 128)
 states/jump/node = SubResource("AnimationNodeAnimation_yqau4")
-states/jump/position = Vector2(193, 19)
+states/jump/position = Vector2(193, 359)
 states/run/node = SubResource("AnimationNodeAnimation_7io06")
-states/run/position = Vector2(479, 128)
+states/run/position = Vector2(419, 128)
 states/walk/node = SubResource("AnimationNodeAnimation_t6q0n")
-states/walk/position = Vector2(339, 128)
-transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_0ttet"), "idle", "walk", SubResource("AnimationNodeStateMachineTransition_gwu22"), "idle", "jump", SubResource("AnimationNodeStateMachineTransition_l2c8s"), "walk", "jump", SubResource("AnimationNodeStateMachineTransition_tdwk3"), "walk", "run", SubResource("AnimationNodeStateMachineTransition_c3jux"), "jump", "Fall", SubResource("AnimationNodeStateMachineTransition_yqau4"), "Fall", "Land", SubResource("AnimationNodeStateMachineTransition_7io06")]
-graph_offset = Vector2(-167, -206)
+states/walk/position = Vector2(419, 246)
+transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_0ttet"), "idle", "walk", SubResource("AnimationNodeStateMachineTransition_gwu22"), "walk", "idle", SubResource("AnimationNodeStateMachineTransition_walk_idle"), "walk", "run", SubResource("AnimationNodeStateMachineTransition_c3jux"), "run", "walk", SubResource("AnimationNodeStateMachineTransition_run_walk"), "idle", "run", SubResource("AnimationNodeStateMachineTransition_t6q0n"), "run", "idle", SubResource("AnimationNodeStateMachineTransition_run_idle"), "run", "Turn", SubResource("AnimationNodeStateMachineTransition_run_turn"), "idle", "Turn", SubResource("AnimationNodeStateMachineTransition_idle_turn"), "walk", "Turn", SubResource("AnimationNodeStateMachineTransition_walk_turn"), "Turn", "walk", SubResource("AnimationNodeStateMachineTransition_turn_walk"), "idle", "jump", SubResource("AnimationNodeStateMachineTransition_l2c8s"), "walk", "jump", SubResource("AnimationNodeStateMachineTransition_tdwk3"), "run", "jump", SubResource("AnimationNodeStateMachineTransition_s8dwm"), "jump", "Fall", SubResource("AnimationNodeStateMachineTransition_yqau4"), "Fall", "Land", SubResource("AnimationNodeStateMachineTransition_7io06"), "Land", "idle", SubResource("AnimationNodeStateMachineTransition_land_idle"), "Land", "walk", SubResource("AnimationNodeStateMachineTransition_land_walk"), "Land", "run", SubResource("AnimationNodeStateMachineTransition_land_run")]
+graph_offset = Vector2(-93, -24)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
 radius = 0.5629883
 height = 2.786255
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1029279415]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2059301032]
 environment = SubResource("Environment_gwu22")
 
-[node name="default2" parent="." instance=ExtResource("13_7k1vm")]
+[node name="default2" parent="." unique_id=565588111 instance=ExtResource("13_7k1vm")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.5, 0, 0)
 
-[node name="Level" parent="." instance=ExtResource("1_duj6w")]
+[node name="Level" parent="." unique_id=1199502810 instance=ExtResource("1_duj6w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, -2)
 
-[node name="Player" type="CharacterBody3D" parent="."]
+[node name="Player" type="CharacterBody3D" parent="." unique_id=367259295]
 collision_layer = 2
 axis_lock_angular_x = true
 axis_lock_angular_y = true
 axis_lock_angular_z = true
 script = ExtResource("3_gwu22")
 
-[node name="CameraRig" type="Node3D" parent="Player"]
+[node name="CameraRig" type="Node3D" parent="Player" unique_id=1201810369]
 unique_name_in_owner = true
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 6.5138e-08, 2.692021, 1.4901838)
 
-[node name="Camera3D" type="Camera3D" parent="Player/CameraRig"]
+[node name="Camera3D" type="Camera3D" parent="Player/CameraRig" unique_id=980691266]
 unique_name_in_owner = true
 transform = Transform3D(0.0012340897, 0.70710564, -0.7071067, 0.0012341334, 0.70710564, 0.7071067, 0.9999984, -0.0017452972, -3.0908616e-08, -10.143373, 10.143373, -4.4338086e-07)
 fov = 40.0
 
-[node name="Character" parent="Player" instance=ExtResource("4_gwu22")]
+[node name="Character" parent="Player" unique_id=1383615888 instance=ExtResource("4_gwu22")]
 
 [node name="IK Chain Right Arm" parent="Player/Character" index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -177,7 +219,7 @@ transform = Transform3D(4.7683713e-07, 2, -3.5762787e-07, 1.1920928e-07, 2.38418
 bone_idx = 0
 
 [node name="right_foot_helper" parent="Player/Character/RootRotationFix/Skeleton3D/right_foot_helper" index="0"]
-transform = Transform3D(0.49999997, 0, 0, 0, 0.5, 0, 0, 0, 0.49999997, -0.46997344, 0.25000033, -1.2177972e-07)
+transform = Transform3D(0.49999994, 0, 0, 0, 0.5, 0, 0, 0, 0.49999994, -0.46997344, 0.25000033, -1.2177972e-07)
 
 [node name="left_foot_helper" parent="Player/Character/RootRotationFix/Skeleton3D" index="1"]
 transform = Transform3D(4.7683713e-07, 2, -3.5762787e-07, 1.1920928e-07, 2.3841858e-07, 2, 1.9999999, -5.9604645e-07, -2.3841858e-07, 0, 0, 0.9399471)
@@ -191,24 +233,24 @@ transform = Transform3D(4.7683713e-07, 2, -3.5762787e-07, 1.1920928e-07, 2.38418
 bone_idx = 0
 
 [node name="head_helper" parent="Player/Character/RootRotationFix/Skeleton3D/head_helper" index="0"]
-transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, -0.325381, 0.0024811903, -0.028358746)
+transform = Transform3D(0.5, 0, 0, 0, 0.49999994, 0, 0, 0, 0.5, -0.325381, 0.0024811903, -0.028358746)
 
-[node name="wall_check" type="RayCast3D" parent="Player/Character"]
-transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.2, 0.39999998)
-target_position = Vector3(0, 0, -1)
-
-[node name="ledge_check" type="RayCast3D" parent="Player/Character"]
-transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.9, 0.39999998)
-target_position = Vector3(0, 0, -1)
-
-[node name="ledge_down" type="RayCast3D" parent="Player/Character"]
-transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 2.1, 0.59999996)
-
-[node name="AnimationTree" type="AnimationTree" parent="Player/Character"]
+[node name="AnimationTree" type="AnimationTree" parent="Player/Character" unique_id=363693565]
 tree_root = SubResource("AnimationNodeStateMachine_s8dwm")
 anim_player = NodePath("../AnimationPlayer")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+[node name="wall_check" type="RayCast3D" parent="Player/Character" unique_id=1654346812]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.2, 0.39999998)
+target_position = Vector3(0, 0, -1)
+
+[node name="ledge_check" type="RayCast3D" parent="Player/Character" unique_id=1605998513]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 1.9, 0.39999998)
+target_position = Vector3(0, 0, -1)
+
+[node name="ledge_down" type="RayCast3D" parent="Player/Character" unique_id=35264743]
+transform = Transform3D(0.9999999, 0, 0, 0, 1, 0, 0, 0, 0.9999999, 0, 2.1, 0.59999996)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=1672131632]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3892751, 0)
 shape = SubResource("CapsuleShape3D_tuib3")
 debug_color = Color(0, 0.6, 0.69803923, 1)
