@@ -3,36 +3,43 @@ class_name PlayerController
 
 @export var walk_speed: float = 4.0
 @export var run_speed: float = 8.0
-@export var acceleration: float = 35.0
-@export var deceleration: float = 45.0
+@export var acceleration: float = 40.0
+@export var deceleration: float = 50.0
 @export var air_acceleration: float = 12.0
 @export_range(0.0, 60.0, 1.0) var max_walkable_slope_degrees: float = 50.0
 @export_range(0.0, 1.0, 0.05) var floor_snap_distance: float = 0.4
 @export var keep_constant_speed_on_slopes: bool = true
 @export_range(0.05, 5.0, 0.05) var run_acceleration_time: float = 0.35
-@export_range(1.0, 2.0, 0.05) var walk_animation_speed: float = 1.4
-@export_range(1.0, 2.0, 0.05) var run_animation_speed: float = 1.2
+@export_range(1.0, 2.0, 0.05) var walk_animation_speed: float = 1.5
+@export_range(1.0, 2.0, 0.05) var run_animation_speed: float = 1.35
+@export_range(0.4, 0.95, 0.05) var cardinal_turn_threshold: float = 0.75
+@export_range(0.0, 1.0, 0.05) var running_drift_strength: float = 0.55
 @export_range(1.0, 2.5, 0.05) var landing_animation_speed: float = 1.65
 @export_range(-1.0, 0.0, 0.05) var slide_direction_threshold: float = -0.85
 @export_range(0.0, 1.0, 0.05) var slide_minimum_run_ratio: float = 0.95
 @export_range(0.0, 0.5, 0.01) var slide_reversal_grace_time: float = 0.15
-@export_range(0.5, 3.0, 0.05) var turn_duration_scale: float = 0.8
+@export_range(0.3, 3.0, 0.05) var turn_duration_scale: float = 0.55
 @export var jump_height: float = 2.0
 @export var walking_jump_distance: float = 2.0
 @export var running_jump_distance: float = 6.1
 @export_range(1.0, 5.0, 0.1) var jump_rise_gravity_multiplier: float = 2.3
 @export_range(1.0, 6.0, 0.1) var jump_fall_gravity_multiplier: float = 3.5
 @export_range(1.0, 8.0, 0.1) var jump_release_gravity_multiplier: float = 4.0
+@export_range(0.0, 30.0, 0.5) var jump_brake_deceleration: float = 12.0
+@export_range(0.0, 1.0, 0.05) var minimum_jump_speed_ratio: float = 0.3
 @export_range(1.0, 2.5, 0.05) var jump_animation_speed: float = 1.65
 @export_range(1.0, 2.5, 0.05) var fall_animation_speed: float = 1.55
 @export var max_fall_speed: float = 30.0
 @export_range(2.0, 4.0, 0.1) var mantle_max_height: float = 3.2
 @export_range(1.0, 3.0, 0.1) var mantle_min_height: float = 2.4
+@export_range(0.0, 2.0, 0.1) var airborne_mantle_min_height: float = 0.4
 @export_range(0.5, 2.0, 0.05) var mantle_reach: float = 1.0
 @export_range(0.5, 2.0, 0.05) var mantle_duration_scale: float = 1.0
 
 var _gravity: float = 0.0
 var _jump_velocity: float = 0.0
+var _spawn_transform: Transform3D
+var _spawn_character_rotation: float = 0.0
 var _was_on_floor: bool = false
 var _time_in_air: float = 0.0
 var _has_been_airborne: bool = false
@@ -40,6 +47,7 @@ var _is_committed_jump: bool = false
 var _jump_started_running: bool = false
 var _jump_horizontal_direction: Vector3 = Vector3.ZERO
 var _jump_horizontal_speed: float = 0.0
+var _jump_initial_horizontal_speed: float = 0.0
 var _is_landing: bool = false
 var _landing_time_remaining: float = 0.0
 var _landing_duration: float = 0.0
@@ -74,6 +82,8 @@ var _mantle_animation_speed: float = 1.0
 
 
 func _ready() -> void:
+	_spawn_transform = global_transform
+	_spawn_character_rotation = _character.rotation.y
 	_gravity = float(ProjectSettings.get_setting("physics/3d/default_gravity"))
 	_jump_velocity = sqrt(
 		2.0 * _gravity * jump_rise_gravity_multiplier * jump_height
@@ -93,6 +103,28 @@ func _ready() -> void:
 	var land_animation: Animation = _anim_player.get_animation("Land")
 	if land_animation != null:
 		_landing_duration = land_animation.length / landing_animation_speed
+
+
+func reset_to_spawn() -> void:
+	global_transform = _spawn_transform
+	_character.rotation.y = _spawn_character_rotation
+	_cardinal_facing = Vector3(
+		sin(_spawn_character_rotation),
+		0.0,
+		cos(_spawn_character_rotation)
+	)
+	velocity = Vector3.ZERO
+	_is_committed_jump = false
+	_jump_started_running = false
+	_has_been_airborne = false
+	_is_landing = false
+	_is_sliding = false
+	_is_mantling = false
+	_mantle_requires_jump_release = false
+	_run_buildup = 0.0
+	_time_in_air = 0.0
+	_was_on_floor = false
+	_anim_state.travel("idle")
 
 
 func _create_in_place_mantle_animation() -> void:
@@ -165,7 +197,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	var on_floor: bool = is_on_floor()
 
-	if not handled_slide:
+	if not handled_slide and not (_is_committed_jump and not on_floor):
 		_update_orientation(input_dir, delta)
 	_update_animation(on_floor, input_dir, delta)
 	_advance_animation(delta)
@@ -201,9 +233,14 @@ func _get_input_direction() -> Vector3:
 
 
 func _try_start_mantle(input_dir: Vector3, on_floor: bool) -> bool:
-	if (
+	var can_air_mantle: bool = (
 		not on_floor
-		or input_dir == Vector3.ZERO
+		and _is_committed_jump
+		and _jump_started_running
+	)
+	if (
+		(not on_floor and not can_air_mantle)
+		or (input_dir == Vector3.ZERO and not can_air_mantle)
 		or not Input.is_action_pressed("Jump")
 		or _mantle_requires_jump_release
 	):
@@ -211,12 +248,17 @@ func _try_start_mantle(input_dir: Vector3, on_floor: bool) -> bool:
 
 	var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
 	var feet_position: Vector3 = global_position
-	var forward: Vector3 = input_dir.normalized()
+	var forward: Vector3 = (
+		input_dir.normalized()
+		if input_dir != Vector3.ZERO
+		else _jump_horizontal_direction
+	)
 	var exclusions: Array[RID] = [get_rid()]
+	var wall_probe_height: float = 0.5 if can_air_mantle else 1.2
 
 	var wall_query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-		feet_position + Vector3.UP * 1.2,
-		feet_position + Vector3.UP * 1.2 + forward * mantle_reach,
+		feet_position + Vector3.UP * wall_probe_height,
+		feet_position + Vector3.UP * wall_probe_height + forward * mantle_reach,
 		collision_mask,
 		exclusions
 	)
@@ -256,29 +298,43 @@ func _try_start_mantle(input_dir: Vector3, on_floor: bool) -> bool:
 	var top_normal: Vector3 = top_hit["normal"]
 	var top_position: Vector3 = top_hit["position"]
 	var ledge_height: float = top_position.y - feet_position.y
+	var minimum_height: float = (
+		airborne_mantle_min_height if can_air_mantle else mantle_min_height
+	)
 	if (
 		top_normal.dot(Vector3.UP) < 0.85
-		or ledge_height < mantle_min_height
+		or ledge_height < minimum_height
 		or ledge_height > mantle_max_height
 	):
 		return false
 
-	_start_mantle(top_position, forward)
+	_start_mantle(wall_point, top_position, forward)
 	return true
 
 
-func _start_mantle(top_position: Vector3, forward: Vector3) -> void:
+func _start_mantle(
+	wall_position: Vector3,
+	top_position: Vector3,
+	forward: Vector3
+) -> void:
 	_is_mantling = true
 	_mantle_requires_jump_release = true
 	_mantle_elapsed = 0.0
 	_mantle_start_position = global_position
-	_mantle_target_position = top_position + forward * 0.45 + Vector3.UP * 0.05
+	_mantle_target_position = Vector3(
+		wall_position.x + forward.x * 0.9,
+		top_position.y + 0.05,
+		wall_position.z + forward.z * 0.9
+	)
 	_mantle_control_position = Vector3(
 		_mantle_start_position.x,
-		_mantle_target_position.y + 0.25,
+		_mantle_target_position.y,
 		_mantle_start_position.z
 	)
 	velocity = Vector3.ZERO
+	_is_committed_jump = false
+	_jump_started_running = false
+	_has_been_airborne = false
 	_run_buildup = 0.0
 	_is_landing = false
 	_is_sliding = false
@@ -293,9 +349,27 @@ func _start_mantle(top_position: Vector3, forward: Vector3) -> void:
 func _update_mantle(delta: float) -> void:
 	_mantle_elapsed = minf(_mantle_elapsed + delta, _mantle_duration)
 	var progress: float = _mantle_elapsed / maxf(_mantle_duration, 0.01)
-	var first_leg: Vector3 = _mantle_start_position.lerp(_mantle_control_position, progress)
-	var second_leg: Vector3 = _mantle_control_position.lerp(_mantle_target_position, progress)
-	global_position = first_leg.lerp(second_leg, progress)
+	var vertical_phase_end: float = 0.7
+	if progress < vertical_phase_end:
+		var vertical_progress: float = smoothstep(
+			0.0,
+			1.0,
+			progress / vertical_phase_end
+		)
+		global_position = _mantle_start_position.lerp(
+			_mantle_control_position,
+			vertical_progress
+		)
+	else:
+		var forward_progress: float = smoothstep(
+			0.0,
+			1.0,
+			(progress - vertical_phase_end) / (1.0 - vertical_phase_end)
+		)
+		global_position = _mantle_control_position.lerp(
+			_mantle_target_position,
+			forward_progress
+		)
 
 	if progress < 1.0:
 		return
@@ -307,6 +381,19 @@ func _update_mantle(delta: float) -> void:
 
 func _apply_horizontal_movement(input_dir: Vector3, on_floor: bool, delta: float) -> void:
 	if _is_committed_jump and not on_floor:
+		var opposing_input: float = maxf(
+			-_jump_horizontal_direction.dot(input_dir),
+			0.0
+		)
+		if opposing_input > 0.0:
+			var minimum_jump_speed: float = (
+				_jump_initial_horizontal_speed * minimum_jump_speed_ratio
+			)
+			_jump_horizontal_speed = move_toward(
+				_jump_horizontal_speed,
+				minimum_jump_speed,
+				jump_brake_deceleration * opposing_input * delta
+			)
 		velocity.x = _jump_horizontal_direction.x * _jump_horizontal_speed
 		velocity.z = _jump_horizontal_direction.z * _jump_horizontal_speed
 		return
@@ -322,7 +409,19 @@ func _apply_horizontal_movement(input_dir: Vector3, on_floor: bool, delta: float
 			target_speed = lerp(walk_speed, run_speed, _run_buildup)
 		else:
 			_run_buildup = 0.0
-		target_velocity = input_dir * target_speed
+		if Input.is_action_pressed("Run") and _is_cardinal_drift_input(input_dir):
+			var facing_right := Vector3(
+				_cardinal_facing.z,
+				0.0,
+				-_cardinal_facing.x
+			)
+			var lateral_amount: float = input_dir.dot(facing_right)
+			target_velocity = (
+				_cardinal_facing * target_speed
+				+ facing_right * lateral_amount * target_speed * running_drift_strength
+			)
+		else:
+			target_velocity = input_dir * target_speed
 		movement_rate = acceleration if on_floor else air_acceleration
 	else:
 		_run_buildup = 0.0
@@ -389,7 +488,8 @@ func _update_slide(delta: float) -> void:
 	_slide_time_remaining = max(_slide_time_remaining - delta, 0.0)
 	var progress: float = 1.0 - _slide_time_remaining / _slide_duration
 	var exit_speed: float = walk_speed if _slide_exit_direction != Vector3.ZERO else 0.0
-	var slide_speed: float = lerpf(_slide_start_speed, exit_speed, progress)
+	var braking_weight: float = 1.0 - pow(1.0 - progress, 3.0)
+	var slide_speed: float = lerpf(_slide_start_speed, exit_speed, braking_weight)
 	velocity.x = _slide_direction.x * slide_speed
 	velocity.z = _slide_direction.z * slide_speed
 	# The braking animation stays locked to the direction the run began in.
@@ -430,6 +530,7 @@ func _apply_vertical_movement(on_floor: bool, delta: float) -> void:
 					else walking_jump_distance
 				)
 				_jump_horizontal_speed = jump_distance / _get_jump_flight_time()
+				_jump_initial_horizontal_speed = _jump_horizontal_speed
 			velocity.y = _jump_velocity
 			return
 
@@ -451,19 +552,33 @@ func _update_orientation(input_dir: Vector3, _delta: float) -> void:
 	if input_dir == Vector3.ZERO:
 		return
 
-	var has_horizontal_input: bool = absf(input_dir.x) > 0.25
-	var has_vertical_input: bool = absf(input_dir.z) > 0.25
+	var facing_right := Vector3(
+		_cardinal_facing.z,
+		0.0,
+		-_cardinal_facing.x
+	)
+	var forward_amount: float = input_dir.dot(_cardinal_facing)
+	var lateral_amount: float = input_dir.dot(facing_right)
 
-	# A diagonal keeps the current compatible cardinal facing. This lets the
-	# character move partly sideways without ever rotating through 360 degrees.
-	if has_horizontal_input and has_vertical_input and _cardinal_facing.dot(input_dir) >= 0.0:
-		pass
-	elif absf(input_dir.x) > absf(input_dir.z):
-		_cardinal_facing = Vector3(signf(input_dir.x), 0.0, 0.0)
-	else:
-		_cardinal_facing = Vector3(0.0, 0.0, signf(input_dir.z))
+	if forward_amount <= -cardinal_turn_threshold:
+		_cardinal_facing = -_cardinal_facing
+	elif absf(lateral_amount) >= cardinal_turn_threshold:
+		_cardinal_facing = facing_right * signf(lateral_amount)
+	elif forward_amount <= 0.0 and absf(lateral_amount) > 0.25:
+		_cardinal_facing = facing_right * signf(lateral_amount)
 
 	_character.rotation.y = atan2(_cardinal_facing.x, _cardinal_facing.z)
+
+
+func _is_cardinal_drift_input(input_dir: Vector3) -> bool:
+	var facing_right := Vector3(
+		_cardinal_facing.z,
+		0.0,
+		-_cardinal_facing.x
+	)
+	var forward_amount: float = input_dir.dot(_cardinal_facing)
+	var lateral_amount: float = absf(input_dir.dot(facing_right))
+	return forward_amount > 0.0 and lateral_amount < cardinal_turn_threshold
 
 
 func _update_animation(on_floor: bool, input_dir: Vector3, delta: float) -> void:

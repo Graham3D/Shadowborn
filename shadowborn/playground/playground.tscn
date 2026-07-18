@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://ch1kvyfwthcr4" path="res://character/scripts/PlayerController.gd" id="3_gwu22"]
 [ext_resource type="PackedScene" uid="uid://b78v6gjyrpm3w" path="res://character/Character.fbx" id="4_gwu22"]
 [ext_resource type="PackedScene" uid="uid://dfx8h05vrgetk" path="res://playground/boxes.gltf" id="13_7k1vm"]
+[ext_resource type="Script" path="res://playground/FallResetVolume.gd" id="14_fall_reset"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8vnjg"]
 sky_horizon_color = Color(0.64233613, 0.6616652, 0.72339386, 1)
@@ -111,6 +112,12 @@ xfade_time = 0.05
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mantle_idle"]
 xfade_time = 0.1
 
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jump_mantle"]
+xfade_time = 0.05
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_fall_mantle"]
+xfade_time = 0.05
+
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_s8dwm"]
 states/End/position = Vector2(193, 20)
 states/Fall/node = SubResource("AnimationNodeAnimation_gwu22")
@@ -130,12 +137,15 @@ states/run/node = SubResource("AnimationNodeAnimation_7io06")
 states/run/position = Vector2(419, 128)
 states/walk/node = SubResource("AnimationNodeAnimation_t6q0n")
 states/walk/position = Vector2(419, 246)
-transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_0ttet"), "idle", "walk", SubResource("AnimationNodeStateMachineTransition_gwu22"), "walk", "idle", SubResource("AnimationNodeStateMachineTransition_walk_idle"), "walk", "run", SubResource("AnimationNodeStateMachineTransition_c3jux"), "run", "walk", SubResource("AnimationNodeStateMachineTransition_run_walk"), "idle", "run", SubResource("AnimationNodeStateMachineTransition_t6q0n"), "run", "idle", SubResource("AnimationNodeStateMachineTransition_run_idle"), "run", "Turn", SubResource("AnimationNodeStateMachineTransition_run_turn"), "idle", "Turn", SubResource("AnimationNodeStateMachineTransition_idle_turn"), "walk", "Turn", SubResource("AnimationNodeStateMachineTransition_walk_turn"), "Turn", "walk", SubResource("AnimationNodeStateMachineTransition_turn_walk"), "idle", "Mantle", SubResource("AnimationNodeStateMachineTransition_idle_mantle"), "walk", "Mantle", SubResource("AnimationNodeStateMachineTransition_walk_mantle"), "run", "Mantle", SubResource("AnimationNodeStateMachineTransition_run_mantle"), "Mantle", "idle", SubResource("AnimationNodeStateMachineTransition_mantle_idle"), "idle", "jump", SubResource("AnimationNodeStateMachineTransition_l2c8s"), "walk", "jump", SubResource("AnimationNodeStateMachineTransition_tdwk3"), "run", "jump", SubResource("AnimationNodeStateMachineTransition_s8dwm"), "jump", "Fall", SubResource("AnimationNodeStateMachineTransition_yqau4"), "Fall", "Land", SubResource("AnimationNodeStateMachineTransition_7io06"), "Land", "idle", SubResource("AnimationNodeStateMachineTransition_land_idle"), "Land", "walk", SubResource("AnimationNodeStateMachineTransition_land_walk"), "Land", "run", SubResource("AnimationNodeStateMachineTransition_land_run")]
+transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_0ttet"), "idle", "walk", SubResource("AnimationNodeStateMachineTransition_gwu22"), "walk", "idle", SubResource("AnimationNodeStateMachineTransition_walk_idle"), "walk", "run", SubResource("AnimationNodeStateMachineTransition_c3jux"), "run", "walk", SubResource("AnimationNodeStateMachineTransition_run_walk"), "idle", "run", SubResource("AnimationNodeStateMachineTransition_t6q0n"), "run", "idle", SubResource("AnimationNodeStateMachineTransition_run_idle"), "run", "Turn", SubResource("AnimationNodeStateMachineTransition_run_turn"), "idle", "Turn", SubResource("AnimationNodeStateMachineTransition_idle_turn"), "walk", "Turn", SubResource("AnimationNodeStateMachineTransition_walk_turn"), "Turn", "walk", SubResource("AnimationNodeStateMachineTransition_turn_walk"), "idle", "Mantle", SubResource("AnimationNodeStateMachineTransition_idle_mantle"), "walk", "Mantle", SubResource("AnimationNodeStateMachineTransition_walk_mantle"), "run", "Mantle", SubResource("AnimationNodeStateMachineTransition_run_mantle"), "jump", "Mantle", SubResource("AnimationNodeStateMachineTransition_jump_mantle"), "Fall", "Mantle", SubResource("AnimationNodeStateMachineTransition_fall_mantle"), "Mantle", "idle", SubResource("AnimationNodeStateMachineTransition_mantle_idle"), "idle", "jump", SubResource("AnimationNodeStateMachineTransition_l2c8s"), "walk", "jump", SubResource("AnimationNodeStateMachineTransition_tdwk3"), "run", "jump", SubResource("AnimationNodeStateMachineTransition_s8dwm"), "jump", "Fall", SubResource("AnimationNodeStateMachineTransition_yqau4"), "Fall", "Land", SubResource("AnimationNodeStateMachineTransition_7io06"), "Land", "idle", SubResource("AnimationNodeStateMachineTransition_land_idle"), "Land", "walk", SubResource("AnimationNodeStateMachineTransition_land_walk"), "Land", "run", SubResource("AnimationNodeStateMachineTransition_land_run")]
 graph_offset = Vector2(-93, -24)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tuib3"]
 radius = 0.5629883
 height = 2.786255
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fall_reset"]
+size = Vector3(200, 1, 200)
 
 [node name="Node3D" type="Node3D" unique_id=1029279415]
 
@@ -147,6 +157,16 @@ transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.5
 
 [node name="Level" parent="." unique_id=1199502810 instance=ExtResource("1_duj6w")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, -2)
+
+[node name="FallResetVolume" type="Area3D" parent="."]
+position = Vector3(0, -10, 0)
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("14_fall_reset")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FallResetVolume"]
+shape = SubResource("BoxShape3D_fall_reset")
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=367259295]
 collision_layer = 2
