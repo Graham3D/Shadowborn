@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://csfmo11w6uvw4"]
+
+[ext_resource type="Texture2D" uid="uid://cvmcpw84sx7q3" path="res://character/tex_character.png" id="1_0unic"]
+
+[resource]
+shading_mode = 0
+specular_mode = 2
+albedo_texture = ExtResource("1_0unic")
+texture_filter = 0
+texture_repeat = false

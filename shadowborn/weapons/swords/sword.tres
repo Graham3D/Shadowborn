@@ -1,0 +1,11 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://c36cw0oq4c5qj"]
+
+[ext_resource type="Texture2D" uid="uid://drao27h4bx1aq" path="res://weapons/swords/sword_iron.png" id="1_jgbxd"]
+
+[resource]
+resource_name = "sword"
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("1_jgbxd")
+emission_enabled = true
+emission_energy_multiplier = 0.0
+texture_filter = 0

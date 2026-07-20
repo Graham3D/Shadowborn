@@ -35,6 +35,7 @@ class_name PlayerController
 @export_range(0.0, 2.0, 0.1) var airborne_mantle_min_height: float = 0.4
 @export_range(0.5, 2.0, 0.05) var mantle_reach: float = 1.0
 @export_range(0.5, 2.0, 0.05) var mantle_duration_scale: float = 1.0
+@export_range(1.0, 2.0, 0.05) var sword_slash_speed: float = 1.4
 
 var _gravity: float = 0.0
 var _jump_velocity: float = 0.0
@@ -71,6 +72,9 @@ var _mantle_target_position: Vector3 = Vector3.ZERO
 var _mantle_elapsed: float = 0.0
 var _mantle_duration: float = 0.0
 var _mantle_animation_speed: float = 1.0
+var _is_sword_slashing: bool = false
+var _sword_slash_time_remaining: float = 0.0
+var _sword_slash_duration: float = 0.0
 
 # CameraRig and Camera3D are children of Player
 @onready var _camera: Camera3D = $CameraRig/Camera3D
@@ -78,7 +82,7 @@ var _mantle_animation_speed: float = 1.0
 @onready var _skeleton: Skeleton3D = $Character/RootRotationFix/Skeleton3D
 @onready var _anim_player: AnimationPlayer = $Character/AnimationPlayer
 @onready var _anim_tree: AnimationTree = $Character/AnimationTree
-@onready var _anim_state: AnimationNodeStateMachinePlayback = _anim_tree.get("parameters/playback")
+var _anim_state: AnimationNodeStateMachinePlayback
 
 
 func _ready() -> void:
@@ -93,6 +97,7 @@ func _ready() -> void:
 	floor_constant_speed = keep_constant_speed_on_slopes
 
 	_create_in_place_mantle_animation()
+	_setup_upper_body_sword_slash()
 	_anim_tree.active = true
 	_anim_tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	_anim_state.travel("idle")   # lowercase idle
@@ -103,6 +108,11 @@ func _ready() -> void:
 	var land_animation: Animation = _anim_player.get_animation("Land")
 	if land_animation != null:
 		_landing_duration = land_animation.length / landing_animation_speed
+	var sword_slash_animation: Animation = _anim_player.get_animation(
+		"Sword_Combos/Sword_Slash_A"
+	)
+	if sword_slash_animation != null:
+		_sword_slash_duration = sword_slash_animation.length / sword_slash_speed
 
 
 func reset_to_spawn() -> void:
@@ -120,11 +130,17 @@ func reset_to_spawn() -> void:
 	_is_landing = false
 	_is_sliding = false
 	_is_mantling = false
+	_is_sword_slashing = false
+	_sword_slash_time_remaining = 0.0
 	_mantle_requires_jump_release = false
 	_run_buildup = 0.0
 	_time_in_air = 0.0
 	_was_on_floor = false
 	_anim_state.travel("idle")
+	_anim_tree.set(
+		"parameters/Sword_Slash_OneShot/request",
+		AnimationNodeOneShot.ONE_SHOT_REQUEST_ABORT
+	)
 
 
 func _create_in_place_mantle_animation() -> void:
@@ -162,6 +178,47 @@ func _create_in_place_mantle_animation() -> void:
 		mantle_node.animation = &"Mantle_InPlace"
 
 
+func _setup_upper_body_sword_slash() -> void:
+	var locomotion_state_machine: AnimationNodeStateMachine = _anim_tree.tree_root
+	var blend_tree := AnimationNodeBlendTree.new()
+	var slash_animation := AnimationNodeAnimation.new()
+	var slash_speed := AnimationNodeTimeScale.new()
+	var slash_one_shot := AnimationNodeOneShot.new()
+
+	slash_animation.animation = &"Sword_Combos/Sword_Slash_A"
+	slash_one_shot.fadein_time = 0.05
+	slash_one_shot.fadeout_time = 0.1
+	slash_one_shot.filter_enabled = true
+
+	var upper_body_tracks: Array[NodePath] = [
+		NodePath("IK Chain Right Arm"),
+		NodePath("IK Chain Left Arm"),
+		NodePath("RootRotationFix/Skeleton3D:stomach"),
+		NodePath("RootRotationFix/Skeleton3D:chest"),
+		NodePath("RootRotationFix/Skeleton3D:head"),
+		NodePath("RootRotationFix/Skeleton3D:right_bicep"),
+		NodePath("RootRotationFix/Skeleton3D:left_bicep"),
+		NodePath("RootRotationFix/Skeleton3D:right_forearm"),
+		NodePath("RootRotationFix/Skeleton3D:left_forearm"),
+		NodePath("RootRotationFix/Skeleton3D:left_hand"),
+	]
+	for track_path: NodePath in upper_body_tracks:
+		slash_one_shot.set_filter_path(track_path, true)
+
+	blend_tree.add_node("Locomotion", locomotion_state_machine, Vector2(0.0, 0.0))
+	blend_tree.add_node("Sword_Slash", slash_animation, Vector2(0.0, 160.0))
+	blend_tree.add_node("Sword_Slash_Speed", slash_speed, Vector2(220.0, 160.0))
+	blend_tree.add_node("Sword_Slash_OneShot", slash_one_shot, Vector2(440.0, 0.0))
+	blend_tree.connect_node("Sword_Slash_Speed", 0, "Sword_Slash")
+	blend_tree.connect_node("Sword_Slash_OneShot", 0, "Locomotion")
+	blend_tree.connect_node("Sword_Slash_OneShot", 1, "Sword_Slash_Speed")
+	blend_tree.connect_node("output", 0, "Sword_Slash_OneShot")
+
+	_anim_tree.tree_root = blend_tree
+	_anim_tree.set("parameters/Sword_Slash_Speed/scale", sword_slash_speed)
+	_anim_state = _anim_tree.get("parameters/Locomotion/playback")
+
+
 func _physics_process(delta: float) -> void:
 	var input_dir: Vector3 = _get_input_direction()
 	var was_on_floor: bool = is_on_floor()
@@ -180,6 +237,8 @@ func _physics_process(delta: float) -> void:
 		_update_mantle(delta)
 		_advance_animation(delta)
 		return
+
+	_update_sword_slash(delta)
 
 	_update_slide_reversal_window(delta)
 
@@ -203,6 +262,30 @@ func _physics_process(delta: float) -> void:
 	_advance_animation(delta)
 
 	_was_on_floor = on_floor
+
+
+func _update_sword_slash(delta: float) -> void:
+	if _is_sword_slashing:
+		_sword_slash_time_remaining = maxf(
+			_sword_slash_time_remaining - delta,
+			0.0
+		)
+		if _sword_slash_time_remaining <= 0.0:
+			_is_sword_slashing = false
+		return
+
+	if (
+		not _is_mantling
+		and not _is_sliding
+		and _sword_slash_duration > 0.0
+		and Input.is_action_just_pressed("Sword_Slash")
+	):
+		_is_sword_slashing = true
+		_sword_slash_time_remaining = _sword_slash_duration
+		_anim_tree.set(
+			"parameters/Sword_Slash_OneShot/request",
+			AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+		)
 
 
 func _get_input_direction() -> Vector3:
