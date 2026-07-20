@@ -35,7 +35,9 @@ class_name PlayerController
 @export_range(0.0, 2.0, 0.1) var airborne_mantle_min_height: float = 0.4
 @export_range(0.5, 2.0, 0.05) var mantle_reach: float = 1.0
 @export_range(0.5, 2.0, 0.05) var mantle_duration_scale: float = 1.0
-@export_range(1.0, 2.0, 0.05) var sword_slash_speed: float = 1.4
+@export_range(0.5, 2.0, 0.05) var sword_slash_speed: float = 1.4
+
+const SWORD_SLASH_ANIMATION: StringName = &"Sword_Combos/Sword_Slash_A"
 
 var _gravity: float = 0.0
 var _jump_velocity: float = 0.0
@@ -75,6 +77,7 @@ var _mantle_animation_speed: float = 1.0
 var _is_sword_slashing: bool = false
 var _sword_slash_time_remaining: float = 0.0
 var _sword_slash_duration: float = 0.0
+var _sword_slash_animation_node: AnimationNodeAnimation
 
 # CameraRig and Camera3D are children of Player
 @onready var _camera: Camera3D = $CameraRig/Camera3D
@@ -108,11 +111,6 @@ func _ready() -> void:
 	var land_animation: Animation = _anim_player.get_animation("Land")
 	if land_animation != null:
 		_landing_duration = land_animation.length / landing_animation_speed
-	var sword_slash_animation: Animation = _anim_player.get_animation(
-		"Sword_Combos/Sword_Slash_A"
-	)
-	if sword_slash_animation != null:
-		_sword_slash_duration = sword_slash_animation.length / sword_slash_speed
 
 
 func reset_to_spawn() -> void:
@@ -181,13 +179,13 @@ func _create_in_place_mantle_animation() -> void:
 func _setup_upper_body_sword_slash() -> void:
 	var locomotion_state_machine: AnimationNodeStateMachine = _anim_tree.tree_root
 	var blend_tree := AnimationNodeBlendTree.new()
-	var slash_animation := AnimationNodeAnimation.new()
+	_sword_slash_animation_node = AnimationNodeAnimation.new()
 	var slash_speed := AnimationNodeTimeScale.new()
 	var slash_one_shot := AnimationNodeOneShot.new()
 
-	slash_animation.animation = &"Sword_Combos/Sword_Slash_A"
-	slash_one_shot.fadein_time = 0.05
-	slash_one_shot.fadeout_time = 0.1
+	_sword_slash_animation_node.animation = SWORD_SLASH_ANIMATION
+	slash_one_shot.fadein_time = 0.03
+	slash_one_shot.fadeout_time = 0.05
 	slash_one_shot.filter_enabled = true
 
 	var upper_body_tracks: Array[NodePath] = [
@@ -206,7 +204,7 @@ func _setup_upper_body_sword_slash() -> void:
 		slash_one_shot.set_filter_path(track_path, true)
 
 	blend_tree.add_node("Locomotion", locomotion_state_machine, Vector2(0.0, 0.0))
-	blend_tree.add_node("Sword_Slash", slash_animation, Vector2(0.0, 160.0))
+	blend_tree.add_node("Sword_Slash", _sword_slash_animation_node, Vector2(0.0, 160.0))
 	blend_tree.add_node("Sword_Slash_Speed", slash_speed, Vector2(220.0, 160.0))
 	blend_tree.add_node("Sword_Slash_OneShot", slash_one_shot, Vector2(440.0, 0.0))
 	blend_tree.connect_node("Sword_Slash_Speed", 0, "Sword_Slash")
@@ -271,21 +269,36 @@ func _update_sword_slash(delta: float) -> void:
 			0.0
 		)
 		if _sword_slash_time_remaining <= 0.0:
-			_is_sword_slashing = false
+			_finish_sword_slash()
 		return
 
 	if (
 		not _is_mantling
 		and not _is_sliding
-		and _sword_slash_duration > 0.0
 		and Input.is_action_just_pressed("Sword_Slash")
 	):
-		_is_sword_slashing = true
-		_sword_slash_time_remaining = _sword_slash_duration
-		_anim_tree.set(
-			"parameters/Sword_Slash_OneShot/request",
-			AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
-		)
+		_start_sword_slash()
+
+
+func _start_sword_slash() -> void:
+	var animation: Animation = _anim_player.get_animation(SWORD_SLASH_ANIMATION)
+	if animation == null:
+		push_warning("Missing sword slash animation: %s" % SWORD_SLASH_ANIMATION)
+		_finish_sword_slash()
+		return
+
+	_is_sword_slashing = true
+	_sword_slash_duration = animation.length / sword_slash_speed
+	_sword_slash_time_remaining = _sword_slash_duration
+	_sword_slash_animation_node.animation = SWORD_SLASH_ANIMATION
+	_anim_tree.set(
+		"parameters/Sword_Slash_OneShot/request",
+		AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE
+	)
+
+func _finish_sword_slash() -> void:
+	_is_sword_slashing = false
+	_sword_slash_time_remaining = 0.0
 
 
 func _get_input_direction() -> Vector3:

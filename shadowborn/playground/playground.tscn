@@ -26,7 +26,7 @@ size = Vector3(200, 1, 200)
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_c3jux"]
 _data = {
-&"Sword_Slash_A": ExtResource("6_tdwk3")
+&"Sword_Slash_A": ExtResource("6_tdwk3"),
 }
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gwu22"]
